@@ -29,21 +29,21 @@ const Gym = ({ route }) => {
     const handleTagData = (data, source) => {
       console.log(`Received tag data from ${source}:`, data);
       setTagData(prevTagData => [...prevTagData, data]);
-    
+
       // Check if cooldown is active
       if (isCooldown && data === studentInfo.tagValue) {
         console.log("Excessive tapping detected. Please wait for a minute before tapping again.");
         setShowExcessiveTappingModal(true);
         return;
       }
-    
+
       // Compare fetched student info with tagValue
       if (data === studentInfo.tagValue) {
         setIsCooldown(true); // Activate cooldown
         setTimeout(() => {
           setIsCooldown(false); // Deactivate cooldown after 1 minute
         }, 1000); // 1 minute cooldown
-    
+
         // // Set previousTap before updating currentTap
         setPreviousTap(currentTap ? { ...currentTap, setting: setting + (tapStatus ? ` - ${tapStatus}` : '') } : null);
         setCurrentTap({ ...studentInfo, taggedAt: new Date().toLocaleString('en-US') });
@@ -70,7 +70,7 @@ const Gym = ({ route }) => {
     return () => clearTimeout(excessiveTappingTimer);
   }, [showExcessiveTappingModal]);
 
-  
+
   useEffect(() => {
     if (currentTap) {
       if (setting === 'Gym') {
@@ -78,7 +78,7 @@ const Gym = ({ route }) => {
       }
     }
   }, [currentTap, setting]);
-  
+
 
   const fetchStudentInfo = async () => {
     try {
@@ -119,10 +119,17 @@ const Gym = ({ route }) => {
       <View style={styles.tapContainer}>
         {currentTap ? (
           <View style={styles.studentInfoContainer}>
-            <Image
-              source={require('../../img/user.png')}
-              style={styles.studentProfile}
-            />
+            {currentTap.student_profile ? (
+              <Image
+                source={{ uri: currentTap.student_profile }}
+                style={styles.studentProfile}
+              />
+            ) : (
+              <Image
+                source={require('../../img/user.png')}
+                style={styles.studentProfile}
+              />
+            )}
             <View style={styles.studentDataContainer}>
               <Text style={styles.studentName}>{`${currentTap.studentInfo_first_name} ${currentTap.studentInfo_middle_name} ${currentTap.studentInfo_last_name}`}</Text>
               <View style={styles.nestedStudentData}>
@@ -160,10 +167,17 @@ const Gym = ({ route }) => {
       <View style={styles.tapContainer}>
         {previousTap ? (
           <View style={styles.studentInfoContainer}>
-            <Image
-              source={require('../../img/user.png')}
-              style={styles.studentProfile}
-            />
+            {previousTap.student_profile ? (
+              <Image
+                source={{ uri: currentTap.student_profile }}
+                style={styles.studentProfile}
+              />
+            ) : (
+              <Image
+                source={require('../../img/user.png')}
+                style={styles.studentProfile}
+              />
+            )}
             <View style={styles.studentDataContainer}>
               <Text style={styles.studentName}>{`${previousTap.studentInfo_first_name} ${previousTap.studentInfo_middle_name} ${previousTap.studentInfo_last_name}`}</Text>
               <View style={styles.nestedStudentData}>
@@ -254,7 +268,7 @@ const styles = StyleSheet.create({
   studentProfile: {
     width: responsiveSize(50),
     height: responsiveSize(50),
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     margin: responsiveSize(15),
     borderRadius: responsiveSize(100),
   },

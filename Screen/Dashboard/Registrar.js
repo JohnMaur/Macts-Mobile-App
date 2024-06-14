@@ -115,10 +115,17 @@ const Registrar = ({ route }) => {
       <View style={styles.tapContainer}>
         {currentTap ? (
           <View style={styles.studentInfoContainer}>
-            <Image
-              source={require('../../img/user.png')}
-              style={styles.studentProfile}
-            />
+            {currentTap.student_profile ? (
+              <Image
+                source={{ uri: currentTap.student_profile }}
+                style={styles.studentProfile}
+              />
+            ) : (
+              <Image
+                source={require('../../img/user.png')}
+                style={styles.studentProfile}
+              />
+            )}
             <View style={styles.studentDataContainer}>
               <Text style={styles.studentName}>{`${currentTap.studentInfo_first_name} ${currentTap.studentInfo_middle_name} ${currentTap.studentInfo_last_name}`}</Text>
               <View style={styles.nestedStudentData}>
@@ -156,10 +163,17 @@ const Registrar = ({ route }) => {
       <View style={styles.tapContainer}>
         {previousTap ? (
           <View style={styles.studentInfoContainer}>
-            <Image
-              source={require('../../img/user.png')}
-              style={styles.studentProfile}
-            />
+            {previousTap.student_profile ? (
+              <Image
+                source={{ uri: currentTap.student_profile }}
+                style={styles.studentProfile}
+              />
+            ) : (
+              <Image
+                source={require('../../img/user.png')}
+                style={styles.studentProfile}
+              />
+            )}
             <View style={styles.studentDataContainer}>
               <Text style={styles.studentName}>{`${previousTap.studentInfo_first_name} ${previousTap.studentInfo_middle_name} ${previousTap.studentInfo_last_name}`}</Text>
               <View style={styles.nestedStudentData}>
@@ -250,7 +264,7 @@ const styles = StyleSheet.create({
   studentProfile: {
     width: responsiveSize(50),
     height: responsiveSize(50),
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     margin: responsiveSize(15),
     borderRadius: responsiveSize(100),
   },

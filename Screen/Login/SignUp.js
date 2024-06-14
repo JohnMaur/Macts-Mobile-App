@@ -40,7 +40,7 @@ const SignUp = () => {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('http://192.168.111.90:2525/users');
+      const response = await axios.post('http://192.168.111.90:2525/users');
       return response.data;
     } catch (error) {
       console.error('Error fetching user data:', error);

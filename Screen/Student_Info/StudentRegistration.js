@@ -59,9 +59,18 @@ const StudentRegistration = ({ route, navigation }) => {
       return;
     }
 
-    setLoading(true); // Set loading state to true while registering
+    setLoading(true); // Set loading state to true while checking TUPT-ID
 
     try {
+      // Check if TUPT-ID already exists
+      const checkTuptIdResponse = await axios.post(`http://192.168.111.90:2525/check_tupt_id/${tuptId}`);
+      if (checkTuptIdResponse.data.exists) {
+        setModalMessage('Your TUPT-ID is already used.');
+        setShowModal(true);
+        setLoading(false);
+        return;
+      }
+
       let studentProfile = null; // Initialize student profile as null
 
       // If image is provided, upload it to Firebase storage
@@ -93,7 +102,7 @@ const StudentRegistration = ({ route, navigation }) => {
       console.log('Registered successfully:', registrationResponse.data);
       // Navigate to the next screen or perform any desired action
       navigation.navigate('StudentInfo', { user_id: user_id });
-      setModalMessage('Registration Successful', 'You have been registered successfully!');
+      setModalMessage('Registration Successful');
       setShowModal(true);
     } catch (error) {
       console.error('Error during registration:', error);
@@ -103,6 +112,7 @@ const StudentRegistration = ({ route, navigation }) => {
       setLoading(false); // Set loading state to false after registration attempt
     }
   };
+
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -150,7 +160,11 @@ const StudentRegistration = ({ route, navigation }) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.scrollContainer}>
         {loading ? ( // Display ActivityIndicator while loading
-          <ActivityIndicator size="large" color="#20AB7D" />
+          <>
+            <View style={styles.loadingIndicator}>
+              <ActivityIndicator size="large" color="#20AB7D" />
+            </View>
+          </>
         ) : (
           <>
             <TouchableOpacity style={styles.profileMainContainer} onPress={pickImage}>
@@ -297,25 +311,15 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
   },
+  loadingIndicator: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   profileMainContainer: {
     marginTop: responsiveSize(50),
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  profileCenterborder: {
-    justifyContent: "center",
-    alignItems: "center",
-    height: responsiveSize(130),
-    width: responsiveSize(130),
-    borderRadius: responsiveSize(125),
-    backgroundColor: "#CCCCCC",
-  },
-  profilePicture: {
-    height: responsiveSize(120),
-    width: responsiveSize(120),
-    borderRadius: responsiveSize(120),
-    resizeMode: "cover",
-    backgroundColor: "white",
   },
   selectProfileContainer: {
     height: responsiveSize(45),
@@ -323,14 +327,25 @@ const styles = StyleSheet.create({
     borderRadius: responsiveSize(45),
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: '#AAAAAA',
+    backgroundColor: '#FFF',
     position: "relative",
     bottom: responsiveSize(45),
     left: responsiveSize(45),
   },
+  profileCenterborder: {
+    borderColor: '#20AB7D',
+    borderWidth: responsiveSize(2),
+    borderRadius: responsiveSize(100),
+    padding: responsiveSize(5),
+  },
+  profilePicture: {
+    width: responsiveSize(130),
+    height: responsiveSize(130),
+    borderRadius: responsiveSize(65),
+  },
   selectProfilepic: {
-    height: responsiveSize(20),
-    width: responsiveSize(20),
+    width: responsiveSize(30),
+    height: responsiveSize(30),
   },
   RegisterInputContainer: {
     flex: 1,

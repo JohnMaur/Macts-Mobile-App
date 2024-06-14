@@ -21,7 +21,7 @@ const AttendanceReport = ({ route }) => {
   // Function to fetch RFID data from the server
   const fetchRfidData = async () => {
     try {
-      const response = await axios.get(`http://192.168.111.90:2525/attendance_tapHistory/${user_id}`);
+      const response = await axios.post(`http://192.168.111.90:2525/attendance_tapHistory/${user_id}`);
       // setRfidData(response.data); // Update the state with the fetched data
       setRfidData(response.data.reverse()); // Reverse the order of fetched data
     } catch (error) {
@@ -45,9 +45,9 @@ const AttendanceReport = ({ route }) => {
       <View style={styles.data}>
         <Text style={[styles.cell, { width: responsiveSize(150) }]}>{item.attendance_tupId}</Text>
         <Text style={[styles.cell, { width: responsiveSize(200) }]}>{`${item.attendance_firstName} ${item.attendance_middleName} ${item.attendance_Lastname} `}</Text>
+        <Text style={[styles.cell, { width: responsiveSize(250) }]}>{item.attendance_code}</Text>
         <Text style={[styles.cell, { width: responsiveSize(150) }]}>{item.attendance_course}</Text>
         <Text style={[styles.cell, { width: responsiveSize(100), paddingLeft: responsiveSize(16) }]}>{item.attendance_section}</Text>
-        <Text style={[styles.cell, { width: responsiveSize(250) }]}>{item.attendance_email}</Text>
         <Text style={[styles.cell, { width: responsiveSize(230) }]}>{item.attendance_historyDate}</Text>
       </View>
     );
@@ -61,9 +61,9 @@ const AttendanceReport = ({ route }) => {
             <View style={styles.header}>
               <Text style={[styles.headerTitle, { width: responsiveSize(150) }]}>TUPT-ID</Text>
               <Text style={[styles.headerTitle, { width: responsiveSize(200) }]}>Name</Text>
+              <Text style={[styles.headerTitle, { width: responsiveSize(250) }]}>Code</Text>
               <Text style={[styles.headerTitle, { width: responsiveSize(150) }]}>Course</Text>
               <Text style={[styles.headerTitle, { width: responsiveSize(100) }]}>Section</Text>
-              <Text style={[styles.headerTitle, { width: responsiveSize(250) }]}>Email</Text>
               <Text style={[styles.headerTitle, { width: responsiveSize(230) }]}>Date</Text>
             </View>
             <FlatList

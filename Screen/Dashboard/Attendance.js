@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, SafeAreaView, Dimensions, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, SafeAreaView, Dimensions, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import io from 'socket.io-client';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
@@ -115,92 +115,109 @@ const Attendance = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.displayText}>Current Tap</Text>
-      <View style={styles.tapContainer}>
-        {currentTap ? (
-          <View style={styles.studentInfoContainer}>
-            <Image
-              source={require('../../img/user.png')}
-              style={styles.studentProfile}
-            />
-            <View style={styles.studentDataContainer}>
-              <Text style={styles.studentName}>{`${currentTap.studentInfo_first_name} ${currentTap.studentInfo_middle_name} ${currentTap.studentInfo_last_name}`}</Text>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>TUPT ID: </Text>
-                <Text style={styles.studentData}>{currentTap.studentInfo_tuptId}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Course: </Text>
-                <Text style={styles.studentData}>{currentTap.studentInfo_course}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Section: </Text>
-                <Text style={styles.studentData}>{currentTap.studentInfo_section}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Email: </Text>
-                <Text style={styles.studentData}>{currentTap.user_email}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Setting: </Text>
-                <Text style={styles.studentData}>{setting}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Time: </Text>
-                <Text style={styles.studentData}>{currentTap.taggedAt}</Text>
+      <ScrollView>
+        <Text style={styles.displayText}>Current Tap</Text>
+        <View style={styles.tapContainer}>
+          {currentTap ? (
+            <View style={styles.studentInfoContainer}>
+              {currentTap.student_profile ? (
+                <Image
+                  source={{ uri: currentTap.student_profile }}
+                  style={styles.studentProfile}
+                />
+              ) : (
+                <Image
+                  source={require('../../img/user.png')}
+                  style={styles.studentProfile}
+                />
+              )}
+              <View style={styles.studentDataContainer}>
+                <Text style={styles.studentName}>{`${currentTap.studentInfo_first_name} ${currentTap.studentInfo_middle_name} ${currentTap.studentInfo_last_name}`}</Text>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>TUPT ID: </Text>
+                  <Text style={styles.studentData}>{currentTap.studentInfo_tuptId}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Course: </Text>
+                  <Text style={styles.studentData}>{currentTap.studentInfo_course}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Section: </Text>
+                  <Text style={styles.studentData}>{currentTap.studentInfo_section}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Email: </Text>
+                  <Text style={styles.studentData}>{currentTap.user_email}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Setting: </Text>
+                  <Text style={styles.studentData}>{setting}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Time: </Text>
+                  <Text style={styles.studentData}>{currentTap.taggedAt}</Text>
+                </View>
               </View>
             </View>
-          </View>
-        ) : (
-          <>
-            <Text style={styles.noStudentInfoText}>Tap your RFID tag</Text>
-            <Text style={styles.noStudentInfoText}>{code}</Text>
-          </>
-        )}
-      </View>
+          ) : (
+            <>
+              <Text style={styles.noStudentInfoText}>Tap your RFID tag</Text>
+            </>
+          )}
+        </View>
 
-      <Text style={styles.displayText}>Previous Tap</Text>
-      <View style={styles.tapContainer}>
-        {previousTap ? (
-          <View style={styles.studentInfoContainer}>
-            <Image
-              source={require('../../img/user.png')}
-              style={styles.studentProfile}
-            />
-            <View style={styles.studentDataContainer}>
-              <Text style={styles.studentName}>{`${previousTap.studentInfo_first_name} ${previousTap.studentInfo_middle_name} ${previousTap.studentInfo_last_name}`}</Text>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>TUPT ID: </Text>
-                <Text style={styles.studentData}>{previousTap.studentInfo_tuptId}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Course: </Text>
-                <Text style={styles.studentData}>{previousTap.studentInfo_course}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Section: </Text>
-                <Text style={styles.studentData}>{previousTap.studentInfo_section}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Email: </Text>
-                <Text style={styles.studentData}>{previousTap.user_email}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Setting: </Text>
-                <Text style={styles.studentData}>{previousTap.setting}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Time: </Text>
-                <Text style={styles.studentData}>{previousTap.taggedAt}</Text>
+        <Text style={styles.displayText}>Previous Tap</Text>
+        <View style={styles.tapContainer}>
+          {previousTap ? (
+            <View style={styles.studentInfoContainer}>
+              {previousTap.student_profile ? (
+                <Image
+                  source={{ uri: currentTap.student_profile }}
+                  style={styles.studentProfile}
+                />
+              ) : (
+                <Image
+                  source={require('../../img/user.png')}
+                  style={styles.studentProfile}
+                />
+              )}
+              <View style={styles.studentDataContainer}>
+                <Text style={styles.studentName}>{`${previousTap.studentInfo_first_name} ${previousTap.studentInfo_middle_name} ${previousTap.studentInfo_last_name}`}</Text>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>TUPT ID: </Text>
+                  <Text style={styles.studentData}>{previousTap.studentInfo_tuptId}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Course: </Text>
+                  <Text style={styles.studentData}>{previousTap.studentInfo_course}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Section: </Text>
+                  <Text style={styles.studentData}>{previousTap.studentInfo_section}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Email: </Text>
+                  <Text style={styles.studentData}>{previousTap.user_email}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Setting: </Text>
+                  <Text style={styles.studentData}>{previousTap.setting}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Time: </Text>
+                  <Text style={styles.studentData}>{previousTap.taggedAt}</Text>
+                </View>
               </View>
             </View>
-          </View>
-        ) : (
-          <Text style={styles.noStudentInfoText}>Tap your RFID tag</Text>
-        )}
-      </View>
-      <TouchableOpacity onPress={() => navigation.navigate('Attendance code', { user_id: user_id })}>
-        <Text>Back</Text>
+          ) : (
+            <Text style={styles.noStudentInfoText}>Tap your RFID tag</Text>
+          )}
+        </View>
+      </ScrollView>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.navigate('Attendance code', { user_id: user_id })}>
+        <Text style={styles.backButtonText}>Back</Text>
       </TouchableOpacity>
       <Modal
         animationType="slide"
@@ -260,7 +277,7 @@ const styles = StyleSheet.create({
   studentProfile: {
     width: responsiveSize(50),
     height: responsiveSize(50),
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     margin: responsiveSize(15),
     borderRadius: responsiveSize(100),
   },
@@ -284,9 +301,9 @@ const styles = StyleSheet.create({
   },
   studentData: {
     color: 'black',
+    width: responsiveSize(180),
     marginLeft: responsiveSize(2),
   },
-
   noStudentInfoText: {
     color: 'black',
     height: responsiveSize(100),
@@ -332,5 +349,20 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: responsiveSize(15),
     textAlign: "center"
-  }
+  },
+  backButton: {
+    marginVertical: responsiveSize(25),
+    paddingVertical: responsiveSize(12),
+    borderRadius: responsiveSize(15),
+    backgroundColor: 'black',
+    alignItems: 'center',
+    width: '85%',
+    alignSelf: 'center',
+  },
+  backButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    fontSize: responsiveSize(16),
+  },
 });

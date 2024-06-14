@@ -41,6 +41,8 @@ const CustomDrawerContent = ({ navigation, state, username, user_id, tagValue })
   const [studentProfile, setStudentProfile] = useState(null);
 
   useEffect(() => {
+    let intervalId;
+
     const fetchStudentData = async () => {
       try {
         const response = await axios.get(`http://192.168.111.90:2525/studentinfo/${user_id}`);
@@ -55,6 +57,11 @@ const CustomDrawerContent = ({ navigation, state, username, user_id, tagValue })
     };
 
     fetchStudentData();
+
+    // Polling every 10 seconds for changes
+    intervalId = setInterval(fetchStudentData, 10000);
+
+    return () => clearInterval(intervalId); // Clear interval on component unmount
   }, [user_id]);
 
   const logOutNav = () => {
@@ -66,12 +73,14 @@ const CustomDrawerContent = ({ navigation, state, username, user_id, tagValue })
       <ScrollView>
         <View>
           <View style={styles.profileContainer}>
+
             <TouchableOpacity style={styles.profileCircleRadius}>
               <Image
-                source={studentProfile ? { uri: studentProfile } : require('../img/account.png')}
+                source={studentProfile ? { uri: studentProfile } : require('../img/user.png')}
                 style={styles.profileIcon}
               />
             </TouchableOpacity>
+
             <Text style={styles.profileName}>{username}</Text>
           </View>
 
@@ -191,7 +200,7 @@ const styles = StyleSheet.create({
     height: responsiveSize(52),
     borderRadius: responsiveSize(100),
     marginRight: responsiveSize(12),
-    backgroundColor: "#83818B",
+    backgroundColor: "#FFF",
     justifyContent: "center",
     alignItems: "center",
   },

@@ -59,13 +59,9 @@ const StudentInfo = ({ route }) => {
             {studentInfo ? (
               <>
                 <View style={styles.studentInfoBoxContainer}>
-                  <TouchableOpacity>
-                    {/* <Image
-                      source={require('../../img/account.png')}
-                      style={styles.profileIcon}
-                    /> */}
+                  <TouchableOpacity style={styles.profileIconContainer}>
                     {studentInfo.student_profile ? (
-                      <View style={styles.profileIconContainer}>
+                      <View style={styles.profileCenterborder}>
                         <Image
                           source={{ uri: studentInfo.student_profile }}
                           style={styles.profileIcon}
@@ -73,9 +69,9 @@ const StudentInfo = ({ route }) => {
                       </View>
 
                     ) : (
-                      <View style={styles.profileIconContainer}>
+                      <View style={styles.profileCenterborder}>
                         <Image
-                          source={require('../../img/account.png')}
+                          source={require('../../img/user.png')}
                           style={styles.profileIcon}
                         />
                       </View>
@@ -150,13 +146,17 @@ const styles = StyleSheet.create({
     marginLeft: responsiveSize(30),
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#CCCCCC",
+  },
+  profileCenterborder: {
+    borderColor: '#2196F3',
+    borderWidth: responsiveSize(2),
+    borderRadius: responsiveSize(100),
+    padding: responsiveSize(5),
   },
   profileIcon: {
     height: responsiveSize(90),
     width: responsiveSize(90),
     resizeMode: 'cover',
-    
     borderRadius: responsiveSize(90),
   },
   studentInfoMainContainer: {

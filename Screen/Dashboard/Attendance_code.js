@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, Modal, TextInput, Alert, TouchableOpacity, Dimensions } from 'react-native'; // Import Alert and TouchableOpacity
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, Modal, TextInput, Alert, TouchableOpacity, Dimensions } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -14,23 +14,49 @@ const Attendance_code = ({ route }) => {
   const { user_id } = route.params;
   const [modalVisible, setModalVisible] = useState(false);
   const [code, setCode] = useState('');
-  const navigation = useNavigation(); // Use useNavigation hook to get navigation object
+  const [error, setError] = useState(null); // Add state for error handling
+  const navigation = useNavigation();
 
-  const handleJoin = () => {
-    // Check if code is empty
+  useFocusEffect(
+    React.useCallback(() => {
+      setModalVisible(false);
+      setCode('');
+    }, [])
+  );
+
+  const handleJoin = async () => {
     if (!code.trim()) {
-      // If code is empty, show an alert
       Alert.alert('Error', 'Please enter a code.');
-      return; // Prevent further execution
+      return;
     }
 
-    // Navigate to "Attendance" route passing the code
-    navigation.navigate('Attendance', { code: code, user_id: user_id });
+    try {
+      const response = await fetch('http://192.168.111.90:2525/attendanceCode', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code: code }),
+      });
+
+      if (response.ok) {
+        navigation.navigate('Attendance', { code: code, user_id: user_id });
+      } else {
+        setError('Invalid code, please try again');
+        // Clear the error message after 3 seconds
+        setTimeout(() => {
+          setError(null);
+        }, 5000);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setError('An error occurred, please try again later');
+    }
   };
 
   const clearCode = () => {
-    setCode("");
-  }
+    setCode('');
+  };
 
   return (
     <View style={styles.container}>
@@ -48,7 +74,6 @@ const Attendance_code = ({ route }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Modal for entering code */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -62,6 +87,7 @@ const Attendance_code = ({ route }) => {
             <TextInput
               style={styles.input}
               placeholder="Enter code"
+              value={code}
               onChangeText={(text) => setCode(text)}
             />
             <View style={styles.buttonContainer}>
@@ -72,14 +98,14 @@ const Attendance_code = ({ route }) => {
                 <Text style={styles.buttonText}>Close</Text>
               </TouchableOpacity>
             </View>
+            {error && <Text style={styles.errorText}>{error}</Text>}
           </View>
         </View>
       </Modal>
+
     </View>
   );
 };
-
-export default Attendance_code;
 
 const styles = StyleSheet.create({
   container: {
@@ -162,4 +188,10 @@ const styles = StyleSheet.create({
     letterSpacing: responsiveSize(1),
     fontWeight: 'bold',
   },
+  errorText: {
+    color: 'red',
+    marginTop: responsiveSize(10),
+  },
 });
+
+export default Attendance_code;

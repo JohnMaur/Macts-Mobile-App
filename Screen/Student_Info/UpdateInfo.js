@@ -135,7 +135,7 @@ const UpdateInfo = ({ route, navigation }) => {
                 ) : profile ? (
                   <Image source={{ uri: profile }} style={styles.profileIcon} />
                 ) : (
-                  <Image source={require('../../img/account.png')} style={styles.profileIcon} />
+                  <Image source={require('../../img/user.png')} style={styles.profileIcon} />
                 )}
               </View>
               <View style={styles.selectProfileContainer}>
@@ -264,12 +264,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   profileCenterborder: {
-    justifyContent: "center",
-    alignItems: "center",
-    height: responsiveSize(130),
-    width: responsiveSize(130),
-    borderRadius: responsiveSize(125),
-    backgroundColor: "#CCCCCC",
+    borderColor: '#2196F3',
+    borderWidth: responsiveSize(2),
+    borderRadius: responsiveSize(100),
+    padding: responsiveSize(5),
   },
   profileIcon: {
     height: responsiveSize(120),
@@ -283,7 +281,7 @@ const styles = StyleSheet.create({
     borderRadius: responsiveSize(45),
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: '#AAAAAA',
+    backgroundColor: '#FFF',
     position: "relative",
     bottom: responsiveSize(45),
     left: responsiveSize(45),
