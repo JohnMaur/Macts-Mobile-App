@@ -23,7 +23,7 @@ const Registrar = ({ route }) => {
   const [setting, setSetting] = useState(null); // Added state for setting
 
   useEffect(() => {
-    const RegistrarSocket = io('http://192.168.111.90:2626');
+    const RegistrarSocket = io('http://192.168.144.90:2626');
 
     const handleTagData = (data, source) => {
       console.log(`Received tag data from ${source}:`, data);
@@ -79,7 +79,7 @@ const Registrar = ({ route }) => {
 
   const fetchStudentInfo = async () => {
     try {
-      const response = await axios.get(`http://192.168.111.90:2525/studentinfo/${user_id}`);
+      const response = await axios.get(`http://192.168.144.90:2525/studentinfo/${user_id}`);
       const fetchedStudentInfo = response.data[0];
       setStudentInfo(fetchedStudentInfo);
     } catch (error) {
@@ -89,7 +89,7 @@ const Registrar = ({ route }) => {
 
   const RegistrarTapHistory = async (data) => {
     try {
-      await axios.post('http://192.168.111.90:2525/registrar_history', {
+      await axios.post('http://192.168.144.90:2525/registrar_history', {
         firstName: data.studentInfo_first_name,
         middleName: data.studentInfo_middle_name,
         lastName: data.studentInfo_last_name,

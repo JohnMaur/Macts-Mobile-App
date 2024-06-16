@@ -45,7 +45,7 @@ const CustomDrawerContent = ({ navigation, state, username, user_id, tagValue })
 
     const fetchStudentData = async () => {
       try {
-        const response = await axios.get(`http://192.168.111.90:2525/studentinfo/${user_id}`);
+        const response = await axios.get(`http://192.168.144.90:2525/studentinfo/${user_id}`);
         if (response.data && Array.isArray(response.data) && response.data.length > 0) {
           setStudentProfile(response.data[0].student_profile);
         } else {
@@ -116,7 +116,7 @@ const CustomDrawerContent = ({ navigation, state, username, user_id, tagValue })
           >
             <View style={styles.navContainer}>
               <Image
-                source={require('../img/nav-icon/student_info.png')}
+                source={require('../img/nav-icon/deviceIcon.png')}
                 style={styles.drawerIcon}
               />
               <Text style={styles.drawerLabel}>Device Registration</Text>

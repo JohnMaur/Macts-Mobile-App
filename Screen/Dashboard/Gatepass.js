@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, SafeAreaView, Dimensions, Modal, TouchableOpacity } from 'react-native';
 import io from 'socket.io-client';
 import axios from 'axios';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -16,203 +17,191 @@ const Gatepass = ({ route }) => {
 
   const [tagData, setTagData] = useState([]);
   const [studentInfo, setStudentInfo] = useState(null);
+  const [studentDevice, setStudentDevice] = useState(null);
   const [currentTap, setCurrentTap] = useState(null);
   const [previousTap, setPreviousTap] = useState(null);
   const [isCooldown, setIsCooldown] = useState(false);
   const [showExcessiveTappingModal, setShowExcessiveTappingModal] = useState(false);
-  const [setting, setSetting] = useState(null); // Added state for setting
+  const [setting, setSetting] = useState(null);
 
   useEffect(() => {
-    const GatepassSocket = io('http://192.168.111.90:3131');
+    const GatepassSocket = io('http://192.168.144.90:3131');
 
     const handleTagData = (data, source) => {
       console.log(`Received tag data from ${source}:`, data);
-      setTagData(prevTagData => [...prevTagData, data]);
-
-      // Check if cooldown is active
-      if (isCooldown && data === studentInfo.tagValue) {
+    
+      if (isCooldown && data === studentDevice.deviceRegistration) {
         console.log("Excessive tapping detected. Please wait for a minute before tapping again.");
         setShowExcessiveTappingModal(true);
         return;
       }
-
-      // Compare fetched student info with tagValue
-      if (data === studentInfo.tagValue) {
-        setIsCooldown(true); // Activate cooldown
-        setTimeout(() => {
-          setIsCooldown(false); // Deactivate cooldown after 1 minute
-        }, 1000); // 1 minute cooldown
-
-        // // Set previousTap before updating currentTap
-        setPreviousTap(prevTap => currentTap ? { ...currentTap, setting: setting } : null);
-        setCurrentTap({ ...studentInfo, taggedAt: new Date().toLocaleString('en-US') });
-        setSetting(source); // Set the setting based on the source
+    
+      if (studentDevice && data === studentDevice.deviceRegistration) {
+        setIsCooldown(true);
+        setTimeout(() => setIsCooldown(false), 1000);
+    
+        if (currentTap) {
+          setPreviousTap(currentTap); // Update previousTap before updating currentTap
+        }
+        
+        const newTap = { ...studentInfo, device_brand: studentDevice.device_brand, device_serialNumber: studentDevice.device_serialNumber, taggedAt: new Date().toLocaleString('en-US') };
+        setCurrentTap(newTap);
+        setSetting(source);
+    
+        GatepassTapHistory(newTap);
       } else {
-        console.log("Tag value doesn't match the student information.");
+        console.log("Tag value doesn't match the student device information.");
       }
     };
+    
 
     GatepassSocket.on('tagData', data => handleTagData(data, 'Gatepass'));
 
     return () => {
       GatepassSocket.disconnect();
     };
-  }, [studentInfo, isCooldown, currentTap]);
+  }, [studentDevice, isCooldown, currentTap, setting]);
 
   useEffect(() => {
-    const excessiveTappingTimer = setTimeout(() => {
-      setShowExcessiveTappingModal(false);
-    }, 1000); // 60 seconds
-
+    const excessiveTappingTimer = setTimeout(() => setShowExcessiveTappingModal(false), 1000);
     return () => clearTimeout(excessiveTappingTimer);
   }, [showExcessiveTappingModal]);
 
-
-  useEffect(() => {
-    if (currentTap) {
-      if (setting === 'Gatepass') {
-        GatepassTapHistory(currentTap);
-      }
-    }
-  }, [currentTap, setting]);
-
-
   const fetchStudentInfo = async () => {
     try {
-      const response = await axios.get(`http://192.168.111.90:2525/studentinfo/${user_id}`);
-      const fetchedStudentInfo = response.data[0];
-      setStudentInfo(fetchedStudentInfo);
+      const response = await axios.get(`http://192.168.144.90:2525/studentinfo/${user_id}`);
+      setStudentInfo(response.data[0]);
     } catch (error) {
       console.error('Error fetching student information:', error);
     }
   };
 
+  const fetchStudentDevice = async () => {
+    try {
+      const response = await axios.get(`http://192.168.144.90:2525/get_device/${user_id}`);
+      setStudentDevice(response.data[0]);
+    } catch (error) {
+      console.error('Error fetching device information:', error);
+    }
+  };
+
   const GatepassTapHistory = async (data) => {
     try {
-      await axios.post('http://192.168.111.90:2525/Gatepass_history', {
+      await axios.post('http://192.168.144.90:2525/Gatepass_history', {
         firstName: data.studentInfo_first_name,
         middleName: data.studentInfo_middle_name,
         lastName: data.studentInfo_last_name,
         tuptId: data.studentInfo_tuptId,
         course: data.studentInfo_course,
         section: data.studentInfo_section,
-        email: data.user_email,
+        deviceName: data.device_brand,
+        serialNumber: data.device_serialNumber,
         date: data.taggedAt,
-        user_id: data.user_id,
+        user_id: user_id,
       });
     } catch (error) {
       console.error('Error inserting data into database:', error);
     }
-  }
+  };
 
   useEffect(() => {
     fetchStudentInfo();
-  }, []);
+    fetchStudentDevice();
+  }, [user_id]);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.displayText}>Current Tap</Text>
-      <View style={styles.tapContainer}>
-        {currentTap ? (
-          <View style={styles.studentInfoContainer}>
-            {currentTap.student_profile ? (
-              <Image
-                source={{ uri: currentTap.student_profile }}
-                style={styles.studentProfile}
-              />
-            ) : (
-              <Image
-                source={require('../../img/user.png')}
-                style={styles.studentProfile}
-              />
-            )}
-            <View style={styles.studentDataContainer}>
-              <Text style={styles.studentName}>{`${currentTap.studentInfo_first_name} ${currentTap.studentInfo_middle_name} ${currentTap.studentInfo_last_name}`}</Text>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>TUPT ID: </Text>
-                <Text style={styles.studentData}>{currentTap.studentInfo_tuptId}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Course: </Text>
-                <Text style={styles.studentData}>{currentTap.studentInfo_course}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Section: </Text>
-                <Text style={styles.studentData}>{currentTap.studentInfo_section}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Email: </Text>
-                <Text style={styles.studentData}>{currentTap.user_email}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Setting: </Text>
-                <Text style={styles.studentData}>{setting}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Time: </Text>
-                <Text style={styles.studentData}>{currentTap.taggedAt}</Text>
+      <ScrollView style={styles.scrollViewContainer}>
+        <Text style={styles.displayText}>Current Tap</Text>
+        <View style={styles.tapContainer}>
+          {currentTap ? (
+            <View style={styles.studentInfoContainer}>
+              {currentTap.student_profile ? (
+                <Image source={{ uri: currentTap.student_profile }} style={styles.studentProfile} />
+              ) : (
+                <Image source={require('../../img/user.png')} style={styles.studentProfile} />
+              )}
+              <View style={styles.studentDataContainer}>
+                <Text style={styles.studentName}>{`${currentTap.studentInfo_first_name} ${currentTap.studentInfo_middle_name} ${currentTap.studentInfo_last_name}`}</Text>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>TUPT ID: </Text>
+                  <Text style={styles.studentData}>{currentTap.studentInfo_tuptId}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Course: </Text>
+                  <Text style={styles.studentData}>{currentTap.studentInfo_course}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Section: </Text>
+                  <Text style={styles.studentData}>{currentTap.studentInfo_section}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Device: </Text>
+                  <Text style={styles.studentData}>{currentTap.device_brand}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Serial No: </Text>
+                  <Text style={styles.studentData}>{currentTap.device_serialNumber}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Time: </Text>
+                  <Text style={styles.studentData}>{currentTap.taggedAt}</Text>
+                </View>
               </View>
             </View>
-          </View>
-        ) : (
-          <Text style={styles.noStudentInfoText}>Tap your RFID tag</Text>
-        )}
-      </View>
+          ) : (
+            <Text style={styles.noStudentInfoText}>Tap your RFID tag</Text>
+          )}
+        </View>
 
-      <Text style={styles.displayText}>Previous Tap</Text>
-      <View style={styles.tapContainer}>
-        {previousTap ? (
-          <View style={styles.studentInfoContainer}>
-            {previousTap.student_profile ? (
-              <Image
-                source={{ uri: currentTap.student_profile }}
-                style={styles.studentProfile}
-              />
-            ) : (
-              <Image
-                source={require('../../img/user.png')}
-                style={styles.studentProfile}
-              />
-            )}
-            <View style={styles.studentDataContainer}>
-              <Text style={styles.studentName}>{`${previousTap.studentInfo_first_name} ${previousTap.studentInfo_middle_name} ${previousTap.studentInfo_last_name}`}</Text>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>TUPT ID: </Text>
-                <Text style={styles.studentData}>{previousTap.studentInfo_tuptId}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Course: </Text>
-                <Text style={styles.studentData}>{previousTap.studentInfo_course}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Section: </Text>
-                <Text style={styles.studentData}>{previousTap.studentInfo_section}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Email: </Text>
-                <Text style={styles.studentData}>{previousTap.user_email}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Setting: </Text>
-                <Text style={styles.studentData}>{previousTap.setting}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Time: </Text>
-                <Text style={styles.studentData}>{previousTap.taggedAt}</Text>
+        <Text style={styles.displayText}>Previous Tap</Text>
+        <View style={styles.tapContainer}>
+          {previousTap ? (
+            <View style={styles.studentInfoContainer}>
+              {previousTap.student_profile ? (
+                <Image source={{ uri: previousTap.student_profile }} style={styles.studentProfile} />
+              ) : (
+                <Image source={require('../../img/user.png')} style={styles.studentProfile} />
+              )}
+              <View style={styles.studentDataContainer}>
+                <Text style={styles.studentName}>{`${previousTap.studentInfo_first_name} ${previousTap.studentInfo_middle_name} ${previousTap.studentInfo_last_name}`}</Text>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>TUPT ID: </Text>
+                  <Text style={styles.studentData}>{previousTap.studentInfo_tuptId}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Course: </Text>
+                  <Text style={styles.studentData}>{previousTap.studentInfo_course}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Section: </Text>
+                  <Text style={styles.studentData}>{previousTap.studentInfo_section}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Device: </Text>
+                  <Text style={styles.studentData}>{previousTap.device_brand}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Serial No: </Text>
+                  <Text style={styles.studentData}>{previousTap.device_serialNumber}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Time: </Text>
+                  <Text style={styles.studentData}>{previousTap.taggedAt}</Text>
+                </View>
               </View>
             </View>
-          </View>
-        ) : (
-          <Text style={styles.noStudentInfoText}>Tap your RFID tag</Text>
-        )}
-      </View>
+          ) : (
+            <Text style={styles.noStudentInfoText}>Tap your RFID tag</Text>
+          )}
+        </View>
+
+      </ScrollView>
       <Modal
         animationType="slide"
         transparent={true}
         visible={showExcessiveTappingModal}
-        onRequestClose={() => {
-          setShowExcessiveTappingModal(false);
-        }}
+        onRequestClose={() => setShowExcessiveTappingModal(false)}
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
@@ -238,6 +227,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#EEEEEE',
+  },
+  scrollViewContainer: {
+    flex: 1,
   },
   displayText: {
     color: 'black',
@@ -290,7 +282,6 @@ const styles = StyleSheet.create({
     color: 'black',
     marginLeft: responsiveSize(2),
   },
-
   noStudentInfoText: {
     color: 'black',
     height: responsiveSize(100),
@@ -300,7 +291,6 @@ const styles = StyleSheet.create({
     marginTop: responsiveSize(20),
     paddingBottom: responsiveSize(20),
   },
-
   centeredView: {
     flex: 1,
     justifyContent: "center",

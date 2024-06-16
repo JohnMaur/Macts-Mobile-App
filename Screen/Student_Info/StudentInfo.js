@@ -22,7 +22,7 @@ const StudentInfo = ({ route }) => {
 
   const fetchStudentInfo = async () => {
     try {
-      const response = await axios.get(`http://192.168.111.90:2525/studentinfo/${user_id}`);
+      const response = await axios.get(`http://192.168.144.90:2525/studentinfo/${user_id}`);
       setStudentInfo(response.data[0]); // Assuming only one student info is returned
     } catch (error) {
       console.error('Error fetching student information:', error);
@@ -41,10 +41,6 @@ const StudentInfo = ({ route }) => {
     navigation.navigate('Student Registration', { user_id: user_id });
   };
 
-  // const handleUpdateLink = () => {
-  //   navigation.navigate('Update Information', {user_id: user_id});
-  // };
-
   const handleUpdateLink = () => {
     navigation.navigate('Update Information', { user_id: user_id, studentInfo: studentInfo });
   };
@@ -52,8 +48,8 @@ const StudentInfo = ({ route }) => {
   return (
     <SafeAreaView style={[styles.container, studentInfo ? null : styles.whiteBackground]}>
       <View style={[styles.studentInfoMainContainer, loading && styles.loadingContainer]}>
-        {loading ? ( // Render ActivityIndicator while loading
-          <ActivityIndicator size="large" color="#20AB7D" />
+        {loading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
         ) : (
           <>
             {studentInfo ? (
@@ -160,7 +156,6 @@ const styles = StyleSheet.create({
     borderRadius: responsiveSize(90),
   },
   studentInfoMainContainer: {
-    marginBottom: responsiveSize(50),
     flex: 1,
     justifyContent: 'space-between',
   },
@@ -173,6 +168,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     marginTop: responsiveSize(40),
     marginHorizontal: responsiveSize(20),
+    paddingRight: responsiveSize(20),
     paddingBottom: responsiveSize(20),
   },
   studentInfoContainer: {
@@ -191,8 +187,8 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   EditBtn: {
-    marginTop: responsiveSize(30),
     backgroundColor: '#1E1E1E',
+    marginVertical: responsiveSize(20),
     paddingVertical: responsiveSize(12),
     borderRadius: responsiveSize(15),
     alignItems: 'center',

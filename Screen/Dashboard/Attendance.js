@@ -26,7 +26,7 @@ const Attendance = ({ route }) => {
   const [setting, setSetting] = useState(null); // Added state for setting
 
   useEffect(() => {
-    const attendanceSocket = io('http://192.168.111.90:2727');
+    const attendanceSocket = io('http://192.168.144.90:2727');
 
     const handleTagData = (data, source) => {
       console.log(`Received tag data from ${source}:`, data);
@@ -82,7 +82,7 @@ const Attendance = ({ route }) => {
 
   const fetchStudentInfo = async () => {
     try {
-      const response = await axios.get(`http://192.168.111.90:2525/studentinfo/${user_id}`);
+      const response = await axios.get(`http://192.168.144.90:2525/studentinfo/${user_id}`);
       const fetchedStudentInfo = response.data[0];
       setStudentInfo(fetchedStudentInfo);
     } catch (error) {
@@ -92,7 +92,7 @@ const Attendance = ({ route }) => {
 
   const attendanceTapHistory = async (data) => {
     try {
-      await axios.post('http://192.168.111.90:2525/attendance_history', {
+      await axios.post('http://192.168.144.90:2525/attendance_history', {
         firstName: data.studentInfo_first_name,
         middleName: data.studentInfo_middle_name,
         lastName: data.studentInfo_last_name,

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, SafeAreaView, Dimensions, Alert, Modal, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, SafeAreaView, Dimensions, Modal, ActivityIndicator } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as ImagePicker from 'expo-image-picker';
 import { firebase } from "../../firebaseConfig";
 import axios from 'axios';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -28,6 +28,23 @@ const StudentAddDevice = ({ route }) => {
   const [modalMessage, setModalMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchStudentDevice = async () => {
+      try {
+        const response = await axios.get(`http://192.168.144.90:2525/get_device/${user_id}`);
+        setStudentDevice(response.data[0]);
+      } catch (error) {
+        console.error('Error fetching student information:', error);
+      }
+    };
+
+    const interval = setInterval(fetchStudentDevice, 5000); // Fetch data every 5 seconds
+
+    fetchStudentDevice(); // Initial fetch
+
+    return () => clearInterval(interval); // Cleanup interval on component unmount
+  }, [user_id]); // Fetch data whenever user_id changes
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -70,7 +87,7 @@ const StudentAddDevice = ({ route }) => {
     try {
       const imageUrl = await uploadImageToFirebase();
 
-      await axios.post('http://192.168.111.90:2525/add_device', {
+      await axios.post('http://192.168.144.90:2525/add_device', {
         device_name: deviceName,
         device_serialNumber: serialNumber,
         device_color: color,
@@ -81,31 +98,12 @@ const StudentAddDevice = ({ route }) => {
 
       setModalMessage('Device added successfully');
       setShowModal(true);
-      fetchStudentDevice();  // Fetch updated device info
     } catch (error) {
       console.error('Error adding device:', error);
     } finally {
       setLoading(false);
     }
   };
-
-  const fetchStudentDevice = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`http://192.168.111.90:2525/get_device/${user_id}`);
-      setStudentDevice(response.data[0]);
-    } catch (error) {
-      console.error('Error fetching student information:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchStudentDevice();
-    }, [])
-  );
 
   const closeModal = () => {
     setShowModal(false);
@@ -118,13 +116,9 @@ const StudentAddDevice = ({ route }) => {
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       {loading ? (
-        <>
-          <View style={styles.setLoadingContainer}>
-            <ActivityIndicator size="large" color="#0000ff" />
-          </View>
-
-        </>
-
+        <View style={styles.setLoadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
       ) : studentDevice ? (
         <>
           <View style={styles.devicephotoTitle}>
@@ -140,26 +134,36 @@ const StudentAddDevice = ({ route }) => {
           </View>
 
           <View style={styles.deviceDescriptionContainer}>
-            <Text style={styles.TextDescription}>Device Description:</Text>
+            <View>
+              <Text style={styles.TextDescription}>Device Description:</Text>
 
-            <View style={styles.deviceNameContainer}>
-              <Text style={styles.deviceNameTitle}>Device name: </Text>
-              <Text style={styles.deviceNameText}>{studentDevice.device_name}</Text>
-            </View>
+              <View style={styles.deviceNameContainer}>
+                <Text style={styles.deviceNameTitle}>Device name: </Text>
+                <Text style={styles.deviceNameText}>{studentDevice.device_name}</Text>
+              </View>
 
-            <View style={styles.deviceNameContainer}>
-              <Text style={styles.deviceNameTitle}>Serial number: </Text>
-              <Text style={styles.deviceNameText}>{studentDevice.device_serialNumber}</Text>
-            </View>
+              <View style={styles.deviceNameContainer}>
+                <Text style={styles.deviceNameTitle}>Serial number: </Text>
+                <Text style={styles.deviceNameText}>{studentDevice.device_serialNumber}</Text>
+              </View>
 
-            <View style={styles.deviceNameContainer}>
-              <Text style={styles.deviceNameTitle}>Device color: </Text>
-              <Text style={styles.deviceNameText}>{studentDevice.device_color}</Text>
-            </View>
+              <View style={styles.deviceNameContainer}>
+                <Text style={styles.deviceNameTitle}>Device color: </Text>
+                <Text style={styles.deviceNameText}>{studentDevice.device_color}</Text>
+              </View>
 
-            <View style={styles.deviceNameContainer}>
-              <Text style={styles.deviceNameTitle}>Device brand: </Text>
-              <Text style={styles.deviceNameText}>{studentDevice.device_brand}</Text>
+              <View style={styles.deviceNameContainer}>
+                <Text style={styles.deviceNameTitle}>Device brand: </Text>
+                <Text style={styles.deviceNameText}>{studentDevice.device_brand}</Text>
+              </View>
+
+              <View style={styles.deviceStatusContainer}>
+                <Text style={styles.deviceNameTitle}>Status: </Text>
+                <Text style={[styles.deviceNameText, studentDevice.deviceRegistration ? styles.registeredText : styles.notRegisteredText]}>
+                  {studentDevice.deviceRegistration ? "Your device is registered." : "Register your device."}
+                </Text>
+              </View>
+
             </View>
 
             <TouchableOpacity style={styles.button} onPress={handleUpdateLink}>
@@ -168,22 +172,22 @@ const StudentAddDevice = ({ route }) => {
           </View>
         </>
       ) : (
-        <>
-          <KeyboardAwareScrollView style={styles.container}>
-            <View style={styles.devicephotoTitle}>
-              <Text style={styles.TextDescription}>Add Device Picture:</Text>
+        <KeyboardAwareScrollView style={styles.container}>
+          <View style={styles.devicephotoTitle}>
+            <Text style={styles.TextDescription}>Add Device Picture:</Text>
+          </View>
+          <TouchableOpacity style={styles.ImageMaincontainer} onPress={pickImage}>
+            <View style={styles.imageContainer}>
+              {selectedImage ? (
+                <Image source={{ uri: selectedImage }} style={styles.selectedImageStyle} />
+              ) : (
+                <Image source={require("../../img/icons/plus.png")} style={styles.addImageIcon} />
+              )}
             </View>
-            <TouchableOpacity style={styles.ImageMaincontainer} onPress={pickImage}>
-              <View style={styles.imageContainer}>
-                {selectedImage ? (
-                  <Image source={{ uri: selectedImage }} style={styles.selectedImageStyle} />
-                ) : (
-                  <Image source={require("../../img/icons/plus.png")} style={styles.addImageIcon} />
-                )}
-              </View>
-            </TouchableOpacity>
+          </TouchableOpacity>
 
-            <View style={styles.deviceDescriptionContainer}>
+          <View style={styles.deviceDescriptionContainer}>
+            <View>
               <Text style={styles.TextDescription}>Add Device Information:</Text>
 
               <TextInput
@@ -210,13 +214,13 @@ const StudentAddDevice = ({ route }) => {
                 onChangeText={setBrand}
                 isRequired
               />
-
-              <TouchableOpacity style={styles.button} onPress={addDevice}>
-                <Text style={styles.buttonText}>ADD</Text>
-              </TouchableOpacity>
             </View>
-          </KeyboardAwareScrollView>
-        </>
+
+            <TouchableOpacity style={styles.button} onPress={addDevice}>
+              <Text style={styles.buttonText}>ADD</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAwareScrollView>
       )}
 
       <Modal
@@ -279,8 +283,10 @@ const styles = StyleSheet.create({
     height: responsiveSize(45),
   },
   deviceDescriptionContainer: {
+    flex: 1,
     paddingHorizontal: responsiveSize(40),
     marginTop: responsiveSize(25),
+    justifyContent: "space-between",
   },
   TextDescription: {
     fontSize: responsiveSize(18),
@@ -297,7 +303,7 @@ const styles = StyleSheet.create({
     paddingLeft: responsiveSize(10),
   },
   button: {
-    marginTop: responsiveSize(12),
+    marginVertical: responsiveSize(20),
     backgroundColor: "#2196F3",
     padding: responsiveSize(15),
     borderRadius: responsiveSize(10),
@@ -363,5 +369,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-  }
+  },
+  deviceStatusContainer: {
+    flexDirection: "row",
+    marginTop: responsiveSize(15),
+  },
+  registeredText: {
+    fontSize: responsiveSize(18),
+    fontWeight: "bold",
+    color: 'green',
+  },
+  notRegisteredText: {
+    fontSize: responsiveSize(18),
+    fontWeight: "bold",
+    color: 'red',
+  },
 });

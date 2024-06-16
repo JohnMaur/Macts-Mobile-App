@@ -21,7 +21,7 @@ const GatepassReport = ({ route }) => {
   // Function to fetch RFID data from the server
   const fetchRfidData = async () => {
     try {
-      const response = await axios.get(`http://192.168.111.90:2525/gatepass_tapHistory/${user_id}`);
+      const response = await axios.get(`http://192.168.144.90:2525/gatepass_tapHistory/${user_id}`);
 
       setRfidData(response.data.reverse()); // Reverse the order of fetched data
     } catch (error) {
@@ -65,6 +65,14 @@ const GatepassReport = ({ route }) => {
           <Text style={styles.cellText}>{item.gatepass_section}</Text>
         </View>
 
+        <View style={[styles.cell, { width: responsiveSize(170) }]}>
+          <Text style={styles.cellText}>{item.device_name}</Text>
+        </View>
+
+        <View style={[styles.cell, { width: responsiveSize(170) }]}>
+          <Text style={styles.cellText}>{item.serial_number}</Text>
+        </View>
+
         <View style={[styles.cell, { width: responsiveSize(230) }]}>
           <Text style={styles.cellText}>{item.gatepass_historyDate}</Text>
         </View>
@@ -83,6 +91,8 @@ const GatepassReport = ({ route }) => {
               <Text style={[styles.headerTitle, { width: responsiveSize(200) }]}>Name</Text>
               <Text style={[styles.headerTitle, { width: responsiveSize(150) }]}>Course</Text>
               <Text style={[styles.headerTitle, { width: responsiveSize(100) }]}>Section</Text>
+              <Text style={[styles.headerTitle, { width: responsiveSize(170) }]}>Device</Text>
+              <Text style={[styles.headerTitle, { width: responsiveSize(170) }]}>Serial number</Text>
               <Text style={[styles.headerTitle, { width: responsiveSize(230) }]}>Date</Text>
             </View>
             <FlatList

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Dimensions, Modal, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Dimensions, Modal, ActivityIndicator, SafeAreaView } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import * as ImagePicker from 'expo-image-picker';
 import { firebase } from "../../firebaseConfig";
@@ -78,7 +78,7 @@ const UpdateDeviceInfo = ({ route, navigation }) => {
         imageUrl = await uploadImageToFirebase();
       }
 
-      await axios.post(`http://192.168.111.90:2525/update_device/${user_id}`, {
+      await axios.post(`http://192.168.144.90:2525/update_device/${user_id}`, {
         device_name: deviceName,
         device_serialNumber: serialNumber,
         device_color: color,
@@ -103,69 +103,76 @@ const UpdateDeviceInfo = ({ route, navigation }) => {
   };
 
   return (
-    <KeyboardAwareScrollView style={styles.safeAreaContainer}>
+    <SafeAreaView style={styles.safeAreaContainer}>
       {loading ? (
-        <View style={styles.setLoadingContainer}>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>
+        <>
+          <View style={styles.setLoadingContainer}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        </>
       ) : studentDevice ? (
         <>
-          <View style={styles.devicephotoTitle}>
-            <Text style={styles.TextDescription}>Click to select new photo:</Text>
-          </View>
-      
-          <TouchableOpacity style={styles.ImageMaincontainer} onPress={pickImage}>
-            <View style={styles.imageContainer}>
-              {selectedImage ? (
-                <Image source={{ uri: selectedImage }} style={styles.selectedImageStyle} />
-              ) : (
-                imageUploadUrl ? (
-                  <Image
-                    source={{ uri: imageUploadUrl }}
-                    style={styles.selectedImageStyle}
-                  />
-                ) : (
-                  <Image source={require("../../img/icons/plus.png")} style={styles.addImageIcon} />
-                )
-              )}
+          <KeyboardAwareScrollView  style={styles.keyboardAvoidingContainer}>
+            <View style={styles.devicephotoTitle}>
+              <Text style={styles.TextDescription}>Click to select new photo:</Text>
             </View>
-          </TouchableOpacity>
 
-          <View style={styles.deviceDescriptionContainer}>
-            <Text style={styles.TextDescription}>Device Information:</Text>
-
-            <TextInput
-              style={styles.input}
-              onChangeText={setDeviceName}
-              defaultValue={deviceName}
-              isRequired
-            />
-
-            <TextInput
-              style={styles.input}
-              onChangeText={setSerialNumber}
-              defaultValue={serialNumber}
-              isRequired
-            />
-
-            <TextInput
-              style={styles.input}
-              onChangeText={setColor}
-              defaultValue={color}
-              isRequired
-            />
-
-            <TextInput
-              style={styles.input}
-              onChangeText={setBrand}
-              defaultValue={brand}
-              isRequired
-            />
-
-            <TouchableOpacity style={styles.button} onPress={updateDevice}>
-              <Text style={styles.buttonText}>UPDATE</Text>
+            <TouchableOpacity style={styles.ImageMaincontainer} onPress={pickImage}>
+              <View style={styles.imageContainer}>
+                {selectedImage ? (
+                  <Image source={{ uri: selectedImage }} style={styles.selectedImageStyle} />
+                ) : (
+                  imageUploadUrl ? (
+                    <Image
+                      source={{ uri: imageUploadUrl }}
+                      style={styles.selectedImageStyle}
+                    />
+                  ) : (
+                    <Image source={require("../../img/icons/plus.png")} style={styles.addImageIcon} />
+                  )
+                )}
+              </View>
             </TouchableOpacity>
-          </View>
+
+            <View style={styles.deviceDescriptionContainer}>
+              <View>
+                <Text style={styles.TextDescription}>Device Information:</Text>
+
+                <TextInput
+                  style={styles.input}
+                  onChangeText={setDeviceName}
+                  defaultValue={deviceName}
+                  isRequired
+                />
+
+                <TextInput
+                  style={styles.input}
+                  onChangeText={setSerialNumber}
+                  defaultValue={serialNumber}
+                  isRequired
+                />
+
+                <TextInput
+                  style={styles.input}
+                  onChangeText={setColor}
+                  defaultValue={color}
+                  isRequired
+                />
+
+                <TextInput
+                  style={styles.input}
+                  onChangeText={setBrand}
+                  defaultValue={brand}
+                  isRequired
+                />
+
+              </View>
+
+              <TouchableOpacity style={styles.button} onPress={updateDevice}>
+                <Text style={styles.buttonText}>UPDATE</Text>
+              </TouchableOpacity>
+            </View>
+          </KeyboardAwareScrollView >
         </>
       ) : (
         <View style={styles.noDeviceContainer}>
@@ -193,7 +200,7 @@ const UpdateDeviceInfo = ({ route, navigation }) => {
           </View>
         </View>
       </Modal>
-    </KeyboardAwareScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -204,7 +211,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
   },
-  container: {
+  setLoadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  keyboardAvoidingContainer: {
     flex: 1,
   },
   devicephotoTitle: {
@@ -233,8 +245,10 @@ const styles = StyleSheet.create({
     height: responsiveSize(45),
   },
   deviceDescriptionContainer: {
+    flex: 1,
     paddingHorizontal: responsiveSize(40),
     marginTop: responsiveSize(25),
+    justifyContent: "space-between",
   },
   TextDescription: {
     fontSize: responsiveSize(18),
@@ -251,7 +265,7 @@ const styles = StyleSheet.create({
     paddingLeft: responsiveSize(10),
   },
   button: {
-    marginTop: responsiveSize(12),
+    marginVertical: responsiveSize(20),
     backgroundColor: "#001529",
     padding: responsiveSize(15),
     borderRadius: responsiveSize(10),
@@ -301,11 +315,6 @@ const styles = StyleSheet.create({
     borderRadius: responsiveSize(20),
     padding: responsiveSize(10),
     elevation: 2
-  },
-  setLoadingContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
   noDeviceContainer: {
     flex: 1,

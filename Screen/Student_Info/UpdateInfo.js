@@ -73,7 +73,7 @@ const UpdateInfo = ({ route, navigation }) => {
       }
 
       // Make an HTTP request to update the student information
-      await axios.post(`http://192.168.111.90:2525/update_studentinfo/${user_id}`, {
+      await axios.post(`http://192.168.144.90:2525/update_studentinfo/${user_id}`, {
         firstName,
         middleName,
         lastName,
@@ -123,7 +123,7 @@ const UpdateInfo = ({ route, navigation }) => {
     <SafeAreaView style={styles.container}>
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#20AB7D" animating={loading} />
+          <ActivityIndicator size="large" color="#0000ff" animating={loading} />
         </View>
       ) : (
         studentInfo && (

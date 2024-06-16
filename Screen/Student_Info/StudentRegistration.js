@@ -37,7 +37,7 @@ const StudentRegistration = ({ route, navigation }) => {
   // Function to check if the user is already registered
   const checkRegistrationStatus = async () => {
     try {
-      const response = await axios.get(`http://192.168.111.90:2525/studentinfo/${user_id}`);
+      const response = await axios.get(`http://192.168.144.90:2525/studentinfo/${user_id}`);
       if (response.data.length > 0) {
         setIsRegistered(true);
       } else {
@@ -63,7 +63,7 @@ const StudentRegistration = ({ route, navigation }) => {
 
     try {
       // Check if TUPT-ID already exists
-      const checkTuptIdResponse = await axios.post(`http://192.168.111.90:2525/check_tupt_id/${tuptId}`);
+      const checkTuptIdResponse = await axios.post(`http://192.168.144.90:2525/check_tupt_id/${tuptId}`);
       if (checkTuptIdResponse.data.exists) {
         setModalMessage('Your TUPT-ID is already used.');
         setShowModal(true);
@@ -85,7 +85,7 @@ const StudentRegistration = ({ route, navigation }) => {
       }
 
       // Insert student data and image URL into the database
-      const registrationResponse = await axios.post('http://192.168.111.90:2525/student_registration', {
+      const registrationResponse = await axios.post('http://192.168.144.90:2525/student_registration', {
         firstName,
         middleName,
         lastName,
