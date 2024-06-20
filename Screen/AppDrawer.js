@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Image, SafeAreaView, Dimensions, ScrollView } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import StudentInfo from './Student_Info/StudentInfo';
 import StudentRegistration from './Student_Info/StudentRegistration';
@@ -64,8 +65,19 @@ const CustomDrawerContent = ({ navigation, state, username, user_id, tagValue })
     return () => clearInterval(intervalId); // Clear interval on component unmount
   }, [user_id]);
 
-  const logOutNav = () => {
-    navigation.navigate('Login');
+  // const logOutNav = () => {
+  //   navigation.navigate('Login');
+  // };
+
+  // Example function inside your AppDrawer or any screen component
+  const logOutNav = async () => {
+    try {
+      await AsyncStorage.removeItem('userToken');
+      await AsyncStorage.removeItem('user');
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
   };
 
   return (

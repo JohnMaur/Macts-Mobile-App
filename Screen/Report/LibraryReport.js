@@ -42,7 +42,7 @@ const LibraryReport = ({ route }) => {
 
   const renderItem = ({ item, index }) => {
     const autoIncrementNumber = index + 1;
-
+ 
     return (
       <View style={styles.data}>
         <View style={[styles.cell, { width: responsiveSize(50) }]}>

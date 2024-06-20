@@ -40,15 +40,32 @@ const AttendanceReport = ({ route }) => {
     }, [])
   );
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item, index }) => {
+    const autoIncrementNumber = index + 1;
+
     return (
       <View style={styles.data}>
-        <Text style={[styles.cell, { width: responsiveSize(150) }]}>{item.attendance_tupId}</Text>
-        <Text style={[styles.cell, { width: responsiveSize(200) }]}>{`${item.attendance_firstName} ${item.attendance_middleName} ${item.attendance_Lastname} `}</Text>
-        <Text style={[styles.cell, { width: responsiveSize(250) }]}>{item.attendance_code}</Text>
-        <Text style={[styles.cell, { width: responsiveSize(150) }]}>{item.attendance_course}</Text>
-        <Text style={[styles.cell, { width: responsiveSize(100), paddingLeft: responsiveSize(16) }]}>{item.attendance_section}</Text>
-        <Text style={[styles.cell, { width: responsiveSize(230) }]}>{item.attendance_historyDate}</Text>
+        <View style={[styles.cell, { width: responsiveSize(50) }]}>
+          <Text style={styles.cellText}>{autoIncrementNumber}</Text>
+        </View>
+        <View style={[styles.cell, { width: responsiveSize(150) }]}>
+          <Text style={styles.cellText}>{item.attendance_tupId}</Text>
+        </View>
+        <View style={[styles.cell, { width: responsiveSize(200) }]}>
+          <Text style={styles.cellText}>{`${item.attendance_firstName} ${item.attendance_middleName} ${item.attendance_Lastname} `}</Text>
+        </View>
+        <View style={[styles.cell, { width: responsiveSize(250) }]}>
+          <Text style={styles.cellText}>{item.attendance_description}</Text>
+        </View>
+        <View style={[styles.cell, { width: responsiveSize(150) }]}>
+          <Text style={styles.cellText}>{item.attendance_course}</Text>
+        </View>
+        <View style={[styles.cell, { width: responsiveSize(100), paddingLeft: responsiveSize(16) }]}>
+          <Text style={styles.cellText}>{item.attendance_section}</Text>
+        </View>
+        <View style={[styles.cell, { width: responsiveSize(230) }]}>
+          <Text style={styles.cellText}>{item.attendance_historyDate}</Text>
+        </View>
       </View>
     );
   };
@@ -59,6 +76,7 @@ const AttendanceReport = ({ route }) => {
         <View style={styles.mainContainer}>
           <View style={styles.listContainer}>
             <View style={styles.header}>
+              <Text style={[styles.headerTitle, { width: responsiveSize(50) }]}>NO.</Text>
               <Text style={[styles.headerTitle, { width: responsiveSize(150) }]}>TUPT-ID</Text>
               <Text style={[styles.headerTitle, { width: responsiveSize(200) }]}>Name</Text>
               <Text style={[styles.headerTitle, { width: responsiveSize(250) }]}>Code</Text>
@@ -72,7 +90,6 @@ const AttendanceReport = ({ route }) => {
             />
           </View>
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );

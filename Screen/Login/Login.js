@@ -16,14 +16,14 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const screenWidth = Dimensions.get('window').width;
 
 const responsiveSize = (fontSize) => {
   const standardScreenWidth = 400;
   const scaleFactor = screenWidth / standardScreenWidth;
-  const responsiveSize = Math.round(fontSize * scaleFactor);
-  return responsiveSize;
+  return Math.round(fontSize * scaleFactor);
 };
 
 const Login = () => {
@@ -32,7 +32,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [userData, setUserData] = useState([]);
   const [showModal, setShowModal] = useState(false); // State for modal visibility
-
   const navigation = useNavigation();
 
   const fetchUserData = async () => {
@@ -47,6 +46,7 @@ const Login = () => {
   useEffect(() => {
     StatusBar.setBarStyle('light-content');
     fetchUserData();
+    checkSession();
   }, []);
 
   useFocusEffect(
@@ -55,16 +55,32 @@ const Login = () => {
     }, [])
   );
 
+  const checkSession = async () => {
+    try {
+      const userToken = await AsyncStorage.getItem('userToken');
+      if (userToken) {
+        const user = JSON.parse(await AsyncStorage.getItem('user'));
+        navigation.replace('AppDrawer', { username: user.user_name, user_id: user.user_id, tagValue: user.tagValue });
+      }
+    } catch (error) {
+      console.error('Error checking session:', error);
+    }
+  };
+
   const handleSignUp = () => {
     navigation.navigate('SignUp');
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     const user = userData.find(user => user.user_name === username && user.user_password === password);
     if (user) {
-      fetchUserData().then(() => {
+      try {
+        await AsyncStorage.setItem('userToken', 'someRandomToken');
+        await AsyncStorage.setItem('user', JSON.stringify(user));
         navigation.replace('AppDrawer', { username: user.user_name, user_id: user.user_id, tagValue: user.tagValue });
-      });
+      } catch (error) {
+        console.error('Error saving data:', error);
+      }
     } else {
       // Show modal if login fails
       setShowModal(true);
@@ -135,7 +151,6 @@ const Login = () => {
               />
             </TouchableWithoutFeedback>
           </View>
-
 
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
             <Text style={styles.buttonText}>Login</Text>
