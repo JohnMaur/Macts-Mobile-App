@@ -31,7 +31,7 @@ const Attendance_code = ({ route }) => {
     }
 
     try {
-      const response = await fetch('http://192.168.144.90:2525/attendanceCode', {
+      const response = await fetch('http://192.168.92.90:2525/attendanceCode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

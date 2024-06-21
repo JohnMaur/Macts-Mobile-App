@@ -24,7 +24,8 @@ const Gym = ({ route }) => {
   const [tapStatus, setTapStatus] = useState(null); // New state for tap status
 
   useEffect(() => {
-    const gymSocket = io('http://192.168.144.90:3030');
+    // const gymSocket = io('http://192.168.92.90:3030');
+    const gymSocket = io('wss://macts-backend-gym.onrender.com');
 
     const handleTagData = (data, source) => {
       console.log(`Received tag data from ${source}:`, data);
@@ -82,7 +83,7 @@ const Gym = ({ route }) => {
 
   const fetchStudentInfo = async () => {
     try {
-      const response = await axios.get(`http://192.168.144.90:2525/studentinfo/${user_id}`);
+      const response = await axios.get(`http://192.168.92.90:2525/studentinfo/${user_id}`);
       const fetchedStudentInfo = response.data[0];
       setStudentInfo(fetchedStudentInfo);
     } catch (error) {
@@ -92,7 +93,7 @@ const Gym = ({ route }) => {
 
   const gymTapHistory = async (data) => {
     try {
-      const response = await axios.post('http://192.168.144.90:2525/gym_history', {
+      const response = await axios.post('http://192.168.92.90:2525/gym_history', {
         firstName: data.studentInfo_first_name,
         middleName: data.studentInfo_middle_name,
         lastName: data.studentInfo_last_name,

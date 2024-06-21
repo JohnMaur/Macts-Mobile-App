@@ -36,7 +36,7 @@ const Login = () => {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.post('http://192.168.144.90:2525/users');
+      const response = await axios.post('http://192.168.92.90:2525/users');
       setUserData(response.data);
     } catch (error) {
       console.error('Error fetching user data:', error);

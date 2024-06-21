@@ -25,7 +25,8 @@ const Gatepass = ({ route }) => {
   const [setting, setSetting] = useState(null);
 
   useEffect(() => {
-    const GatepassSocket = io('http://192.168.144.90:3131');
+    // const GatepassSocket = io('http://192.168.92.90:3131');
+    const GatepassSocket = io('wss://macts-backend-gatepass.onrender.com');
 
     const handleTagData = (data, source) => {
       console.log(`Received tag data from ${source}:`, data);
@@ -69,7 +70,7 @@ const Gatepass = ({ route }) => {
 
   const fetchStudentInfo = async () => {
     try {
-      const response = await axios.get(`http://192.168.144.90:2525/studentinfo/${user_id}`);
+      const response = await axios.get(`http://192.168.92.90:2525/studentinfo/${user_id}`);
       setStudentInfo(response.data[0]);
     } catch (error) {
       console.error('Error fetching student information:', error);
@@ -78,7 +79,7 @@ const Gatepass = ({ route }) => {
 
   const fetchStudentDevice = async () => {
     try {
-      const response = await axios.get(`http://192.168.144.90:2525/get_device/${user_id}`);
+      const response = await axios.get(`http://192.168.92.90:2525/get_device/${user_id}`);
       setStudentDevice(response.data[0]);
     } catch (error) {
       console.error('Error fetching device information:', error);
@@ -87,7 +88,7 @@ const Gatepass = ({ route }) => {
 
   const GatepassTapHistory = async (data) => {
     try {
-      await axios.post('http://192.168.144.90:2525/Gatepass_history', {
+      await axios.post('http://192.168.92.90:2525/Gatepass_history', {
         firstName: data.studentInfo_first_name,
         middleName: data.studentInfo_middle_name,
         lastName: data.studentInfo_last_name,
