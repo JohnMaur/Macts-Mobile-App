@@ -22,7 +22,7 @@ const StudentInfo = ({ route }) => {
 
   const fetchStudentInfo = async () => {
     try {
-      const response = await axios.get(`http://192.168.92.90:2525/studentinfo/${user_id}`);
+      const response = await axios.get(`https://macts-backend-mobile-app.onrender.com/studentinfo/${user_id}`);
       setStudentInfo(response.data[0]); // Assuming only one student info is returned
     } catch (error) {
       console.error('Error fetching student information:', error);

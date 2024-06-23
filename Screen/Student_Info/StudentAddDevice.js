@@ -32,7 +32,7 @@ const StudentAddDevice = ({ route }) => {
   useEffect(() => {
     const fetchStudentDevice = async () => {
       try {
-        const response = await axios.get(`http://192.168.144.90:2525/get_device/${user_id}`);
+        const response = await axios.get(`https://macts-backend-mobile-app.onrender.com/get_device/${user_id}`);
         setStudentDevice(response.data[0]);
       } catch (error) {
         console.error('Error fetching student information:', error);
@@ -87,7 +87,7 @@ const StudentAddDevice = ({ route }) => {
     try {
       const imageUrl = await uploadImageToFirebase();
 
-      await axios.post('http://192.168.144.90:2525/add_device', {
+      await axios.post('https://macts-backend-mobile-app.onrender.com/add_device', {
         device_name: deviceName,
         device_serialNumber: serialNumber,
         device_color: color,

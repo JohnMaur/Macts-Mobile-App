@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, SafeAreaView, Dimensions, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, SafeAreaView, Dimensions, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import io from 'socket.io-client';
 import axios from 'axios';
 
@@ -23,7 +23,6 @@ const Registrar = ({ route }) => {
   const [setting, setSetting] = useState(null); // Added state for setting
 
   useEffect(() => {
-    // const RegistrarSocket = io('http://192.168.92.90:2626');
     const RegistrarSocket = io('wss://macts-backend-registrar.onrender.com');
 
     const handleTagData = (data, source) => {
@@ -42,7 +41,7 @@ const Registrar = ({ route }) => {
         setIsCooldown(true); // Activate cooldown
         setTimeout(() => {
           setIsCooldown(false); // Deactivate cooldown after 1 minute
-        }, 1000); // 1 minute cooldown
+        }, 60000); // 1 minute cooldown
 
         // // Set previousTap before updating currentTap
         setPreviousTap(prevTap => currentTap ? { ...currentTap, setting: setting } : null);
@@ -63,7 +62,7 @@ const Registrar = ({ route }) => {
   useEffect(() => {
     const excessiveTappingTimer = setTimeout(() => {
       setShowExcessiveTappingModal(false);
-    }, 1000); // 60 seconds
+    }, 60000); // 60 seconds
 
     return () => clearTimeout(excessiveTappingTimer);
   }, [showExcessiveTappingModal]);
@@ -80,7 +79,7 @@ const Registrar = ({ route }) => {
 
   const fetchStudentInfo = async () => {
     try {
-      const response = await axios.get(`http://192.168.92.90:2525/studentinfo/${user_id}`);
+      const response = await axios.get(`https://macts-backend-mobile-app.onrender.com/studentinfo/${user_id}`);
       const fetchedStudentInfo = response.data[0];
       setStudentInfo(fetchedStudentInfo);
     } catch (error) {
@@ -90,7 +89,7 @@ const Registrar = ({ route }) => {
 
   const RegistrarTapHistory = async (data) => {
     try {
-      await axios.post('http://192.168.92.90:2525/registrar_history', {
+      await axios.post('https://macts-backend-mobile-app.onrender.com/registrar_history', {
         firstName: data.studentInfo_first_name,
         middleName: data.studentInfo_middle_name,
         lastName: data.studentInfo_last_name,
@@ -112,101 +111,103 @@ const Registrar = ({ route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.displayText}>Current Tap</Text>
-      <View style={styles.tapContainer}>
-        {currentTap ? (
-          <View style={styles.studentInfoContainer}>
-            {currentTap.student_profile ? (
-              <Image
-                source={{ uri: currentTap.student_profile }}
-                style={styles.studentProfile}
-              />
-            ) : (
-              <Image
-                source={require('../../img/user.png')}
-                style={styles.studentProfile}
-              />
-            )}
-            <View style={styles.studentDataContainer}>
-              <Text style={styles.studentName}>{`${currentTap.studentInfo_first_name} ${currentTap.studentInfo_middle_name} ${currentTap.studentInfo_last_name}`}</Text>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>TUPT ID: </Text>
-                <Text style={styles.studentData}>{currentTap.studentInfo_tuptId}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Course: </Text>
-                <Text style={styles.studentData}>{currentTap.studentInfo_course}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Section: </Text>
-                <Text style={styles.studentData}>{currentTap.studentInfo_section}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Email: </Text>
-                <Text style={styles.studentData}>{currentTap.user_email}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Setting: </Text>
-                <Text style={styles.studentData}>{setting}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Time: </Text>
-                <Text style={styles.studentData}>{currentTap.taggedAt}</Text>
+      <ScrollView>
+        <Text style={styles.displayText}>Current Tap</Text>
+        <View style={styles.tapContainer}>
+          {currentTap ? (
+            <View style={styles.studentInfoContainer}>
+              {currentTap.student_profile ? (
+                <Image
+                  source={{ uri: currentTap.student_profile }}
+                  style={styles.studentProfile}
+                />
+              ) : (
+                <Image
+                  source={require('../../img/user.png')}
+                  style={styles.studentProfile}
+                />
+              )}
+              <View style={styles.studentDataContainer}>
+                <Text style={styles.studentName}>{`${currentTap.studentInfo_first_name} ${currentTap.studentInfo_middle_name} ${currentTap.studentInfo_last_name}`}</Text>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>TUPT ID: </Text>
+                  <Text style={styles.studentData}>{currentTap.studentInfo_tuptId}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Course: </Text>
+                  <Text style={styles.studentData}>{currentTap.studentInfo_course}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Section: </Text>
+                  <Text style={styles.studentData}>{currentTap.studentInfo_section}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Email: </Text>
+                  <Text style={styles.studentData}>{currentTap.user_email}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Setting: </Text>
+                  <Text style={styles.studentData}>{setting}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Time: </Text>
+                  <Text style={styles.studentData}>{currentTap.taggedAt}</Text>
+                </View>
               </View>
             </View>
-          </View>
-        ) : (
-          <Text style={styles.noStudentInfoText}>Tap your RFID tag</Text>
-        )}
-      </View>
+          ) : (
+            <Text style={styles.noStudentInfoText}>Tap your RFID tag</Text>
+          )}
+        </View>
 
-      <Text style={styles.displayText}>Previous Tap</Text>
-      <View style={styles.tapContainer}>
-        {previousTap ? (
-          <View style={styles.studentInfoContainer}>
-            {previousTap.student_profile ? (
-              <Image
-                source={{ uri: currentTap.student_profile }}
-                style={styles.studentProfile}
-              />
-            ) : (
-              <Image
-                source={require('../../img/user.png')}
-                style={styles.studentProfile}
-              />
-            )}
-            <View style={styles.studentDataContainer}>
-              <Text style={styles.studentName}>{`${previousTap.studentInfo_first_name} ${previousTap.studentInfo_middle_name} ${previousTap.studentInfo_last_name}`}</Text>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>TUPT ID: </Text>
-                <Text style={styles.studentData}>{previousTap.studentInfo_tuptId}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Course: </Text>
-                <Text style={styles.studentData}>{previousTap.studentInfo_course}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Section: </Text>
-                <Text style={styles.studentData}>{previousTap.studentInfo_section}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Email: </Text>
-                <Text style={styles.studentData}>{previousTap.user_email}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Setting: </Text>
-                <Text style={styles.studentData}>{previousTap.setting}</Text>
-              </View>
-              <View style={styles.nestedStudentData}>
-                <Text style={styles.studentTitle}>Time: </Text>
-                <Text style={styles.studentData}>{previousTap.taggedAt}</Text>
+        <Text style={styles.displayText}>Previous Tap</Text>
+        <View style={styles.tapContainer}>
+          {previousTap ? (
+            <View style={styles.studentInfoContainer}>
+              {previousTap.student_profile ? (
+                <Image
+                  source={{ uri: currentTap.student_profile }}
+                  style={styles.studentProfile}
+                />
+              ) : (
+                <Image
+                  source={require('../../img/user.png')}
+                  style={styles.studentProfile}
+                />
+              )}
+              <View style={styles.studentDataContainer}>
+                <Text style={styles.studentName}>{`${previousTap.studentInfo_first_name} ${previousTap.studentInfo_middle_name} ${previousTap.studentInfo_last_name}`}</Text>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>TUPT ID: </Text>
+                  <Text style={styles.studentData}>{previousTap.studentInfo_tuptId}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Course: </Text>
+                  <Text style={styles.studentData}>{previousTap.studentInfo_course}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Section: </Text>
+                  <Text style={styles.studentData}>{previousTap.studentInfo_section}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Email: </Text>
+                  <Text style={styles.studentData}>{previousTap.user_email}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Setting: </Text>
+                  <Text style={styles.studentData}>{previousTap.setting}</Text>
+                </View>
+                <View style={styles.nestedStudentData}>
+                  <Text style={styles.studentTitle}>Time: </Text>
+                  <Text style={styles.studentData}>{previousTap.taggedAt}</Text>
+                </View>
               </View>
             </View>
-          </View>
-        ) : (
-          <Text style={styles.noStudentInfoText}>Tap your RFID tag</Text>
-        )}
-      </View>
+          ) : (
+            <Text style={styles.noStudentInfoText}>Tap your RFID tag</Text>
+          )}
+        </View>
+      </ScrollView>
       <Modal
         animationType="slide"
         transparent={true}
@@ -289,6 +290,7 @@ const styles = StyleSheet.create({
   },
   studentData: {
     color: 'black',
+    width: responsiveSize(180),
     marginLeft: responsiveSize(2),
   },
 

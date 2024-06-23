@@ -46,7 +46,7 @@ const CustomDrawerContent = ({ navigation, state, username, user_id, tagValue })
 
     const fetchStudentData = async () => {
       try {
-        const response = await axios.get(`http://192.168.92.90:2525/studentinfo/${user_id}`);
+        const response = await axios.get(`https://macts-backend-mobile-app.onrender.com/studentinfo/${user_id}`);
         if (response.data && Array.isArray(response.data) && response.data.length > 0) {
           setStudentProfile(response.data[0].student_profile);
         } else {

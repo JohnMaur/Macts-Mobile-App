@@ -78,7 +78,7 @@ const UpdateDeviceInfo = ({ route, navigation }) => {
         imageUrl = await uploadImageToFirebase();
       }
 
-      await axios.post(`http://192.168.144.90:2525/update_device/${user_id}`, {
+      await axios.post(`https://macts-backend-mobile-app.onrender.com/update_device/${user_id}`, {
         device_name: deviceName,
         device_serialNumber: serialNumber,
         device_color: color,

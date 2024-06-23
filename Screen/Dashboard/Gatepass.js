@@ -25,7 +25,6 @@ const Gatepass = ({ route }) => {
   const [setting, setSetting] = useState(null);
 
   useEffect(() => {
-    // const GatepassSocket = io('http://192.168.92.90:3131');
     const GatepassSocket = io('wss://macts-backend-gatepass.onrender.com');
 
     const handleTagData = (data, source) => {
@@ -39,7 +38,7 @@ const Gatepass = ({ route }) => {
     
       if (studentDevice && data === studentDevice.deviceRegistration) {
         setIsCooldown(true);
-        setTimeout(() => setIsCooldown(false), 1000);
+        setTimeout(() => setIsCooldown(false), 60000);
     
         if (currentTap) {
           setPreviousTap(currentTap); // Update previousTap before updating currentTap
@@ -64,13 +63,13 @@ const Gatepass = ({ route }) => {
   }, [studentDevice, isCooldown, currentTap, setting]);
 
   useEffect(() => {
-    const excessiveTappingTimer = setTimeout(() => setShowExcessiveTappingModal(false), 1000);
+    const excessiveTappingTimer = setTimeout(() => setShowExcessiveTappingModal(false), 60000);
     return () => clearTimeout(excessiveTappingTimer);
   }, [showExcessiveTappingModal]);
 
   const fetchStudentInfo = async () => {
     try {
-      const response = await axios.get(`http://192.168.92.90:2525/studentinfo/${user_id}`);
+      const response = await axios.get(`https://macts-backend-mobile-app.onrender.com/studentinfo/${user_id}`);
       setStudentInfo(response.data[0]);
     } catch (error) {
       console.error('Error fetching student information:', error);
@@ -79,7 +78,7 @@ const Gatepass = ({ route }) => {
 
   const fetchStudentDevice = async () => {
     try {
-      const response = await axios.get(`http://192.168.92.90:2525/get_device/${user_id}`);
+      const response = await axios.get(`https://macts-backend-mobile-app.onrender.com/get_device/${user_id}`);
       setStudentDevice(response.data[0]);
     } catch (error) {
       console.error('Error fetching device information:', error);
@@ -88,7 +87,7 @@ const Gatepass = ({ route }) => {
 
   const GatepassTapHistory = async (data) => {
     try {
-      await axios.post('http://192.168.92.90:2525/Gatepass_history', {
+      await axios.post('https://macts-backend-mobile-app.onrender.com/Gatepass_history', {
         firstName: data.studentInfo_first_name,
         middleName: data.studentInfo_middle_name,
         lastName: data.studentInfo_last_name,
@@ -281,6 +280,7 @@ const styles = StyleSheet.create({
   },
   studentData: {
     color: 'black',
+    width: responsiveSize(180),
     marginLeft: responsiveSize(2),
   },
   noStudentInfoText: {

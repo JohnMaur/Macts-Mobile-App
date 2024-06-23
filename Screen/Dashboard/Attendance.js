@@ -26,7 +26,6 @@ const Attendance = ({ route }) => {
   const [setting, setSetting] = useState(null); // Added state for setting
 
   useEffect(() => {
-    // const attendanceSocket = io('http://192.168.92.90:2727');
     const attendanceSocket = io('wss://macts-backend-attendance.onrender.com');
 
     const handleTagData = (data, source) => {
@@ -45,7 +44,7 @@ const Attendance = ({ route }) => {
         setIsCooldown(true); // Activate cooldown
         setTimeout(() => {
           setIsCooldown(false); // Deactivate cooldown after 1 minute
-        }, 1000); // 1 minute cooldown
+        }, 60000); // 1 minute cooldown
 
         // // Set previousTap before updating currentTap
         setPreviousTap(prevTap => currentTap ? { ...currentTap, setting: setting } : null);
@@ -66,7 +65,7 @@ const Attendance = ({ route }) => {
   useEffect(() => {
     const excessiveTappingTimer = setTimeout(() => {
       setShowExcessiveTappingModal(false);
-    }, 1000); // 60 seconds
+    }, 60000); // 60 seconds
 
     return () => clearTimeout(excessiveTappingTimer);
   }, [showExcessiveTappingModal]);
@@ -83,7 +82,7 @@ const Attendance = ({ route }) => {
 
   const fetchStudentInfo = async () => {
     try {
-      const response = await axios.get(`http://192.168.92.90:2525/studentinfo/${user_id}`);
+      const response = await axios.get(`https://macts-backend-mobile-app.onrender.com/studentinfo/${user_id}`);
       const fetchedStudentInfo = response.data[0];
       setStudentInfo(fetchedStudentInfo);
     } catch (error) {
@@ -93,7 +92,7 @@ const Attendance = ({ route }) => {
 
   const attendanceTapHistory = async (data) => {
     try {
-      await axios.post('http://192.168.92.90:2525/attendance_history', {
+      await axios.post('https://macts-backend-mobile-app.onrender.com/attendance_history', {
         firstName: data.studentInfo_first_name,
         middleName: data.studentInfo_middle_name,
         lastName: data.studentInfo_last_name,

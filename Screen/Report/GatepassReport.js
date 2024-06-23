@@ -21,7 +21,7 @@ const GatepassReport = ({ route }) => {
   // Function to fetch RFID data from the server
   const fetchRfidData = async () => {
     try {
-      const response = await axios.get(`http://192.168.144.90:2525/gatepass_tapHistory/${user_id}`);
+      const response = await axios.get(`https://macts-backend-mobile-app.onrender.com/gatepass_tapHistory/${user_id}`);
 
       setRfidData(response.data.reverse()); // Reverse the order of fetched data
     } catch (error) {

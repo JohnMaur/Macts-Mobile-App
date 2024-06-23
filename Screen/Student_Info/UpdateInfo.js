@@ -73,7 +73,7 @@ const UpdateInfo = ({ route, navigation }) => {
       }
 
       // Make an HTTP request to update the student information
-      await axios.post(`http://192.168.144.90:2525/update_studentinfo/${user_id}`, {
+      await axios.post(`https://macts-backend-mobile-app.onrender.com/update_studentinfo/${user_id}`, {
         firstName,
         middleName,
         lastName,
