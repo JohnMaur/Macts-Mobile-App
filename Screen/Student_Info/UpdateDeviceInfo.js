@@ -5,15 +5,11 @@ import * as ImagePicker from 'expo-image-picker';
 import { firebase } from "../../firebaseConfig";
 import axios from 'axios';
 
-// Get the screen dimensions
 const screenWidth = Dimensions.get('window').width;
-
-// Calculate the responsive font size based on the screen width
 const responsiveSize = (fontSize) => {
-  const standardScreenWidth = 400; // Standard screen width (iPhone 8 width)
+  const standardScreenWidth = 400;
   const scaleFactor = screenWidth / standardScreenWidth;
-  const responsiveSize = Math.round(fontSize * scaleFactor);
-  return responsiveSize;
+  return Math.round(fontSize * scaleFactor);
 };
 
 const UpdateDeviceInfo = ({ route, navigation }) => {
@@ -39,7 +35,7 @@ const UpdateDeviceInfo = ({ route, navigation }) => {
     });
 
     if (!result.cancelled) {
-      setSelectedImage(result.assets[0].uri);
+      setSelectedImage(result.uri);
     }
   };
 
@@ -101,7 +97,7 @@ const UpdateDeviceInfo = ({ route, navigation }) => {
   const closeModal = () => {
     setShowModal(false);
   };
-
+  
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       {loading ? (

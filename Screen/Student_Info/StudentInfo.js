@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, Dimensions, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -8,7 +8,7 @@ const screenWidth = Dimensions.get('window').width;
 
 // Calculate the responsive font size based on the screen width
 const responsiveSize = (fontSize) => {
-  const standardScreenWidth = 400;
+  const standardScreenWidth = 420;
   const scaleFactor = screenWidth / standardScreenWidth;
   const responsiveSize = Math.round(fontSize * scaleFactor);
   return responsiveSize;
@@ -184,6 +184,7 @@ const styles = StyleSheet.create({
   },
   studentInfo: {
     fontSize: responsiveSize(18),
+    width: responsiveSize(270),
     color: 'black',
   },
   EditBtn: {
