@@ -13,6 +13,7 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
   Modal,
+  ActivityIndicator,
 } from 'react-native';
 import axios from 'axios';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -31,15 +32,26 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [userData, setUserData] = useState([]);
-  const [showModal, setShowModal] = useState(false); // State for modal visibility
+  const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [slowConnection, setSlowConnection] = useState(false);
   const navigation = useNavigation();
 
   const fetchUserData = async () => {
+    setLoading(true); // Start loading indicator
+    const slowConnectionTimeout = setTimeout(() => {
+      setSlowConnection(true); // Show slow connection popup
+    }, 5000); // Timeout for slow connection
+
     try {
       const response = await axios.get('https://macts-backend-mobile-app.onrender.com/users');
       setUserData(response.data);
     } catch (error) {
       console.error('Error fetching user data:', error);
+    } finally {
+      clearTimeout(slowConnectionTimeout); // Clear slow connection timeout
+      setLoading(false); // Stop loading indicator
+      setSlowConnection(false); // Hide slow connection popup
     }
   };
 
@@ -82,8 +94,7 @@ const Login = () => {
         console.error('Error saving data:', error);
       }
     } else {
-      // Show modal if login fails
-      setShowModal(true);
+      setShowModal(true); // Show modal if login fails
     }
   };
 
@@ -102,6 +113,22 @@ const Login = () => {
   const closeModal = () => {
     setShowModal(false);
   };
+
+  const closeSlowConnectionModal = () => {
+    setSlowConnection(false);
+  };
+  // {loading && (
+  //   <View style={styles.loadingContainer}>
+  //     <ActivityIndicator size="large" color="#0000ff" />
+  //   </View>
+  // )}
+  // if (loading) {
+  //   return (
+  //     <View style={styles.loadingContainer}>
+  //       <ActivityIndicator size="large" color="#0000ff" />
+  //     </View>
+  //   )
+  // }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -185,7 +212,6 @@ const Login = () => {
                 />
               </TouchableOpacity>
             </View>
-
           </View>
 
           <View style={styles.footerContainer}>
@@ -197,22 +223,43 @@ const Login = () => {
         </View>
       </KeyboardAvoidingView>
 
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size={responsiveSize(50)} color="#0000ff" />
+        </View>
+      )}
+
       <Modal
         animationType="slide"
         transparent={true}
-        visible={showModal} // Control modal visibility with state
-        onRequestClose={() => {
-          closeModal(); // Close modal on pressing hardware back button on Android
-        }}
+        visible={showModal}
+        onRequestClose={closeModal}
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>
-              Invalid username or password
-            </Text>
+            <Text style={styles.modalText}>Invalid username or password</Text>
             <TouchableOpacity
               style={styles.openButton}
-              onPress={closeModal} // Close modal on button press
+              onPress={closeModal}
+            >
+              <Text style={styles.textStyle}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={slowConnection}
+        onRequestClose={closeSlowConnectionModal}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Slow connection...</Text>
+            <TouchableOpacity
+              style={styles.openButton}
+              onPress={closeSlowConnectionModal}
             >
               <Text style={styles.textStyle}>OK</Text>
             </TouchableOpacity>
@@ -326,7 +373,14 @@ const styles = StyleSheet.create({
     marginRight: '5%',
     resizeMode: 'contain',
   },
-
+  loadingContainer: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -responsiveSize(25) }, { translateY: -responsiveSize(25) }],
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   centeredView: {
     flex: 1,
     justifyContent: "center",
