@@ -33,9 +33,9 @@ const UpdateDeviceInfo = ({ route, navigation }) => {
       aspect: [16, 9],
       quality: 1,
     });
-
+    
     if (!result.cancelled) {
-      setSelectedImage(result.uri);
+      setSelectedImage(result.assets[0].uri);
     }
   };
 
