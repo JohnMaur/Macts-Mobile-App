@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, SafeAreaView, Dimensions, ScrollView, ActivityIndicator, Modal } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import * as ImagePicker from 'expo-image-picker';
-import { firebase } from "../../firebaseConfig"
+import { firebase } from "../../firebaseConfig";
 import axios from 'axios';
 
 // Get the screen dimensions
@@ -12,8 +12,7 @@ const screenWidth = Dimensions.get('window').width;
 const responsiveSize = (fontSize) => {
   const standardScreenWidth = 400; // Standard screen width (iPhone 8 width)
   const scaleFactor = screenWidth / standardScreenWidth;
-  const responsiveSize = Math.round(fontSize * scaleFactor);
-  return responsiveSize;
+  return Math.round(fontSize * scaleFactor);
 };
 
 const StudentRegistration = ({ route, navigation }) => {
@@ -113,7 +112,6 @@ const StudentRegistration = ({ route, navigation }) => {
     }
   };
 
-
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -197,6 +195,7 @@ const StudentRegistration = ({ route, navigation }) => {
                     placeholder="First name"
                     placeholderTextColor="gray"
                     onChangeText={setFirstName}
+                    value={firstName} // Bind the TextInput value to state
                     isRequired
                   />
                   <TextInput
@@ -204,12 +203,14 @@ const StudentRegistration = ({ route, navigation }) => {
                     placeholder="Middle name"
                     placeholderTextColor="gray"
                     onChangeText={setMiddleName}
+                    value={middleName} // Bind the TextInput value to state
                     isRequired
                   />
                   <TextInput
                     style={styles.newInput}
                     placeholder="Last name"
                     onChangeText={setLastName}
+                    value={lastName} // Bind the TextInput value to state
                     placeholderTextColor="gray"
                     isRequired
                   />
@@ -221,6 +222,7 @@ const StudentRegistration = ({ route, navigation }) => {
                     style={styles.newInput}
                     placeholder="Example: name@tup.edu.ph"
                     onChangeText={setUser_email}
+                    value={user_email} // Bind the TextInput value to state
                     placeholderTextColor="gray"
                     isRequired
                   />
@@ -232,6 +234,7 @@ const StudentRegistration = ({ route, navigation }) => {
                     style={styles.newInput}
                     placeholder="Example: TUPT-00-0000"
                     onChangeText={setTuptId}
+                    value={tuptId} // Bind the TextInput value to state
                     placeholderTextColor="gray"
                     isRequired
                   />
@@ -264,6 +267,7 @@ const StudentRegistration = ({ route, navigation }) => {
                     style={styles.newInput}
                     placeholder="Example: 1A"
                     onChangeText={setSection}
+                    value={section} // Bind the TextInput value to state
                     placeholderTextColor="gray"
                     isRequired
                   />
@@ -429,23 +433,23 @@ const styles = StyleSheet.create({
 
 const pickerSelectStyles = StyleSheet.create({
   inputIOS: {
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderWidth: 1,
+    fontSize: responsiveSize(16),
+    paddingVertical: responsiveSize(12),
+    paddingHorizontal: responsiveSize(10),
+    borderWidth: responsiveSize(1),
     borderColor: 'gray',
-    borderRadius: 4,
+    borderRadius: responsiveSize(4),
     color: 'black',
-    paddingRight: 30, // to ensure the text is never behind the icon
+    paddingRight: responsiveSize(30), // to ensure the text is never behind the icon
   },
   inputAndroid: {
-    fontSize: 16,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderWidth: 0.5,
+    fontSize: responsiveSize(16),
+    paddingHorizontal: responsiveSize(10),
+    paddingVertical: responsiveSize(8),
+    borderWidth: responsiveSize(0.5),
     borderColor: 'purple',
-    borderRadius: 8,
+    borderRadius: responsiveSize(8),
     color: 'black',
-    paddingRight: 30, // to ensure the text is never behind the icon
+    paddingRight: responsiveSize(30), // to ensure the text is never behind the icon
   },
 });

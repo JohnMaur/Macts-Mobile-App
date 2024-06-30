@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native'; // Import useNavigatio
 const screenWidth = Dimensions.get('window').width;
 
 const responsiveSize = (fontSize) => {
-  const standardScreenWidth = 400;
+  const standardScreenWidth = 440;
   const scaleFactor = screenWidth / standardScreenWidth;
   return Math.round(fontSize * scaleFactor);
 };
@@ -23,7 +23,7 @@ const Attendance = ({ route }) => {
   const [previousTap, setPreviousTap] = useState(null);
   const [isCooldown, setIsCooldown] = useState(false);
   const [showExcessiveTappingModal, setShowExcessiveTappingModal] = useState(false);
-  const [setting, setSetting] = useState(null); // Added state for setting
+  const [setting, setSetting] = useState(null); 
 
   useEffect(() => {
     const attendanceSocket = io('wss://macts-backend-attendance.onrender.com');
@@ -147,7 +147,12 @@ const Attendance = ({ route }) => {
                 </View>
                 <View style={styles.nestedStudentData}>
                   <Text style={styles.studentTitle}>Email: </Text>
-                  <Text style={styles.studentData}>{currentTap.user_email}</Text>
+                  <Text style={{
+                    color: 'black',
+                    width: responsiveSize(230),
+                    fontSize: responsiveSize(16),
+                    marginLeft: responsiveSize(2),
+                  }}>{currentTap.user_email}</Text>
                 </View>
                 <View style={styles.nestedStudentData}>
                   <Text style={styles.studentTitle}>Setting: </Text>
@@ -197,7 +202,12 @@ const Attendance = ({ route }) => {
                 </View>
                 <View style={styles.nestedStudentData}>
                   <Text style={styles.studentTitle}>Email: </Text>
-                  <Text style={styles.studentData}>{previousTap.user_email}</Text>
+                  <Text style={{
+                    color: 'black',
+                    width: responsiveSize(230),
+                    fontSize: responsiveSize(16),
+                    marginLeft: responsiveSize(2),
+                  }}>{previousTap.user_email}</Text>
                 </View>
                 <View style={styles.nestedStudentData}>
                   <Text style={styles.studentTitle}>Setting: </Text>
@@ -301,7 +311,8 @@ const styles = StyleSheet.create({
   },
   studentData: {
     color: 'black',
-    width: responsiveSize(180),
+    fontSize: responsiveSize(16),
+    width: responsiveSize(220),
     marginLeft: responsiveSize(2),
   },
   noStudentInfoText: {

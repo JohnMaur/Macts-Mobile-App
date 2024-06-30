@@ -6,7 +6,7 @@ import axios from 'axios';
 const screenWidth = Dimensions.get('window').width;
 
 const responsiveSize = (fontSize) => {
-  const standardScreenWidth = 400;
+  const standardScreenWidth = 440;
   const scaleFactor = screenWidth / standardScreenWidth;
   return Math.round(fontSize * scaleFactor);
 };
@@ -143,7 +143,12 @@ const Registrar = ({ route }) => {
                 </View>
                 <View style={styles.nestedStudentData}>
                   <Text style={styles.studentTitle}>Email: </Text>
-                  <Text style={styles.studentData}>{currentTap.user_email}</Text>
+                  <Text style={{
+                    color: 'black',
+                    fontSize: responsiveSize(16),
+                    width: responsiveSize(230),
+                    marginLeft: responsiveSize(2),
+                  }}>{currentTap.user_email}</Text>
                 </View>
                 <View style={styles.nestedStudentData}>
                   <Text style={styles.studentTitle}>Setting: </Text>
@@ -191,7 +196,12 @@ const Registrar = ({ route }) => {
                 </View>
                 <View style={styles.nestedStudentData}>
                   <Text style={styles.studentTitle}>Email: </Text>
-                  <Text style={styles.studentData}>{previousTap.user_email}</Text>
+                  <Text style={{
+                    color: 'black',
+                    fontSize: responsiveSize(16),
+                    width: responsiveSize(230),
+                    marginLeft: responsiveSize(2),
+                  }}>{previousTap.user_email}</Text>
                 </View>
                 <View style={styles.nestedStudentData}>
                   <Text style={styles.studentTitle}>Setting: </Text>
@@ -290,7 +300,8 @@ const styles = StyleSheet.create({
   },
   studentData: {
     color: 'black',
-    width: responsiveSize(180),
+    fontSize: responsiveSize(16),
+    width: responsiveSize(220),
     marginLeft: responsiveSize(2),
   },
 

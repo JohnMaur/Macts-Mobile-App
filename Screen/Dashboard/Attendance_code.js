@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, Modal, TextInput, Alert, TouchableOpacity, Dimensions } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
@@ -54,23 +54,12 @@ const Attendance_code = ({ route }) => {
     }
   };
 
-  const clearCode = () => {
-    setCode('');
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.miniContainer}>
         <Text style={styles.miniText}>Click join to enter your code</Text>
         <TouchableOpacity style={styles.MainjoinButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.buttonText}>Join</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.miniContainer}>
-        <Text style={styles.miniText}>Clear your previous code if join button is not working</Text>
-        <TouchableOpacity style={styles.MainjoinButton} onPress={clearCode}>
-          <Text style={styles.buttonText}>Clear</Text>
         </TouchableOpacity>
       </View>
 
@@ -125,8 +114,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: responsiveSize(45),
   },
   miniText: {
-    fontSize: responsiveSize(18),
-    marginBottom: responsiveSize(12),
+    fontSize: responsiveSize(20),
+    marginBottom: responsiveSize(15),
+    fontWeight: "bold",
+    letterSpacing: responsiveSize(1),
   },
   MainjoinButton: {
     backgroundColor: '#007bff',

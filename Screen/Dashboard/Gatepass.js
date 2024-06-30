@@ -7,7 +7,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 const screenWidth = Dimensions.get('window').width;
 
 const responsiveSize = (fontSize) => {
-  const standardScreenWidth = 400;
+  const standardScreenWidth = 420;
   const scaleFactor = screenWidth / standardScreenWidth;
   return Math.round(fontSize * scaleFactor);
 };
@@ -280,7 +280,8 @@ const styles = StyleSheet.create({
   },
   studentData: {
     color: 'black',
-    width: responsiveSize(180),
+    fontSize: responsiveSize(16),
+    width: responsiveSize(220),
     marginLeft: responsiveSize(2),
   },
   noStudentInfoText: {

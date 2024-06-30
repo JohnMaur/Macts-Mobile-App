@@ -57,7 +57,7 @@ const AttendanceReport = ({ route }) => {
         <View style={[styles.cell, { width: responsiveSize(250) }]}>
           <Text style={styles.cellText}>{item.attendance_description}</Text>
         </View>
-        <View style={[styles.cell, { width: responsiveSize(150) }]}>
+        <View style={[styles.cell, { width: responsiveSize(230) }]}>
           <Text style={styles.cellText}>{item.attendance_course}</Text>
         </View>
         <View style={[styles.cell, { width: responsiveSize(100), paddingLeft: responsiveSize(16) }]}>
@@ -79,8 +79,8 @@ const AttendanceReport = ({ route }) => {
               <Text style={[styles.headerTitle, { width: responsiveSize(50) }]}>NO.</Text>
               <Text style={[styles.headerTitle, { width: responsiveSize(150) }]}>TUPT-ID</Text>
               <Text style={[styles.headerTitle, { width: responsiveSize(200) }]}>Name</Text>
-              <Text style={[styles.headerTitle, { width: responsiveSize(250) }]}>Code</Text>
-              <Text style={[styles.headerTitle, { width: responsiveSize(150) }]}>Course</Text>
+              <Text style={[styles.headerTitle, { width: responsiveSize(250) }]}>Setting</Text>
+              <Text style={[styles.headerTitle, { width: responsiveSize(230) }]}>Course</Text>
               <Text style={[styles.headerTitle, { width: responsiveSize(100) }]}>Section</Text>
               <Text style={[styles.headerTitle, { width: responsiveSize(230) }]}>Date</Text>
             </View>
