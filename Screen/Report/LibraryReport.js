@@ -21,7 +21,7 @@ const LibraryReport = ({ route }) => {
   // Function to fetch RFID data from the server
   const fetchRfidData = async () => {
     try {
-      const response = await axios.get(`https://macts-backend-mobile-app.onrender.com/library_tapHistory/${user_id}`);
+      const response = await axios.get(`https://macts-backend-mobile-app-production.up.railway.app/library_tapHistory/${user_id}`);
       // setRfidData(response.data); // Update the state with the fetched data
       setRfidData(response.data.reverse()); // Reverse the order of fetched data
     } catch (error) {

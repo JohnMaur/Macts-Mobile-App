@@ -26,7 +26,7 @@ const Attendance = ({ route }) => {
   const [setting, setSetting] = useState(null); 
 
   useEffect(() => {
-    const attendanceSocket = io('wss://macts-backend-attendance.onrender.com');
+    const attendanceSocket = io('wss://macts-attendance-production.up.railway.app');
 
     const handleTagData = (data, source) => {
       console.log(`Received tag data from ${source}:`, data);
@@ -82,7 +82,7 @@ const Attendance = ({ route }) => {
 
   const fetchStudentInfo = async () => {
     try {
-      const response = await axios.get(`https://macts-backend-mobile-app.onrender.com/studentinfo/${user_id}`);
+      const response = await axios.get(`https://macts-backend-mobile-app-production.up.railway.app/studentinfo/${user_id}`);
       const fetchedStudentInfo = response.data[0];
       setStudentInfo(fetchedStudentInfo);
     } catch (error) {
@@ -92,7 +92,7 @@ const Attendance = ({ route }) => {
 
   const attendanceTapHistory = async (data) => {
     try {
-      await axios.post('https://macts-backend-mobile-app.onrender.com/attendance_history', {
+      await axios.post('https://macts-backend-mobile-app-production.up.railway.app/attendance_history', {
         firstName: data.studentInfo_first_name,
         middleName: data.studentInfo_middle_name,
         lastName: data.studentInfo_last_name,

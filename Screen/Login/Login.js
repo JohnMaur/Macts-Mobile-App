@@ -44,7 +44,7 @@ const Login = () => {
     }, 5000); // Timeout for slow connection
 
     try {
-      const response = await axios.get('https://macts-backend-mobile-app.onrender.com/users');
+      const response = await axios.get('https://macts-backend-mobile-app-production.up.railway.app/users');
       setUserData(response.data);
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -117,18 +117,6 @@ const Login = () => {
   const closeSlowConnectionModal = () => {
     setSlowConnection(false);
   };
-  // {loading && (
-  //   <View style={styles.loadingContainer}>
-  //     <ActivityIndicator size="large" color="#0000ff" />
-  //   </View>
-  // )}
-  // if (loading) {
-  //   return (
-  //     <View style={styles.loadingContainer}>
-  //       <ActivityIndicator size="large" color="#0000ff" />
-  //     </View>
-  //   )
-  // }
 
   return (
     <SafeAreaView style={styles.safeArea}>

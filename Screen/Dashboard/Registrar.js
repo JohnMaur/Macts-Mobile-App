@@ -23,7 +23,7 @@ const Registrar = ({ route }) => {
   const [setting, setSetting] = useState(null); // Added state for setting
 
   useEffect(() => {
-    const RegistrarSocket = io('wss://macts-backend-registrar.onrender.com');
+    const RegistrarSocket = io('wss://macts-backend-registrar-production.up.railway.app');
 
     const handleTagData = (data, source) => {
       console.log(`Received tag data from ${source}:`, data);
@@ -79,7 +79,7 @@ const Registrar = ({ route }) => {
 
   const fetchStudentInfo = async () => {
     try {
-      const response = await axios.get(`https://macts-backend-mobile-app.onrender.com/studentinfo/${user_id}`);
+      const response = await axios.get(`https://macts-backend-mobile-app-production.up.railway.app/studentinfo/${user_id}`);
       const fetchedStudentInfo = response.data[0];
       setStudentInfo(fetchedStudentInfo);
     } catch (error) {
@@ -89,7 +89,7 @@ const Registrar = ({ route }) => {
 
   const RegistrarTapHistory = async (data) => {
     try {
-      await axios.post('https://macts-backend-mobile-app.onrender.com/registrar_history', {
+      await axios.post('https://macts-backend-mobile-app-production.up.railway.app/registrar_history', {
         firstName: data.studentInfo_first_name,
         middleName: data.studentInfo_middle_name,
         lastName: data.studentInfo_last_name,

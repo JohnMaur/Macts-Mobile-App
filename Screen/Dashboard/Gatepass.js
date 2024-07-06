@@ -25,7 +25,7 @@ const Gatepass = ({ route }) => {
   const [setting, setSetting] = useState(null);
 
   useEffect(() => {
-    const GatepassSocket = io('wss://macts-backend-gatepass.onrender.com');
+    const GatepassSocket = io('wss://macts-backend-gatepass-production.up.railway.app');
 
     const handleTagData = (data, source) => {
       console.log(`Received tag data from ${source}:`, data);
@@ -69,7 +69,7 @@ const Gatepass = ({ route }) => {
 
   const fetchStudentInfo = async () => {
     try {
-      const response = await axios.get(`https://macts-backend-mobile-app.onrender.com/studentinfo/${user_id}`);
+      const response = await axios.get(`https://macts-backend-mobile-app-production.up.railway.app/studentinfo/${user_id}`);
       setStudentInfo(response.data[0]);
     } catch (error) {
       console.error('Error fetching student information:', error);
@@ -78,7 +78,7 @@ const Gatepass = ({ route }) => {
 
   const fetchStudentDevice = async () => {
     try {
-      const response = await axios.get(`https://macts-backend-mobile-app.onrender.com/get_device/${user_id}`);
+      const response = await axios.get(`https://macts-backend-mobile-app-production.up.railway.app/get_device/${user_id}`);
       setStudentDevice(response.data[0]);
     } catch (error) {
       console.error('Error fetching device information:', error);
@@ -87,7 +87,7 @@ const Gatepass = ({ route }) => {
 
   const GatepassTapHistory = async (data) => {
     try {
-      await axios.post('https://macts-backend-mobile-app.onrender.com/Gatepass_history', {
+      await axios.post('https://macts-backend-mobile-app-production.up.railway.app/Gatepass_history', {
         firstName: data.studentInfo_first_name,
         middleName: data.studentInfo_middle_name,
         lastName: data.studentInfo_last_name,

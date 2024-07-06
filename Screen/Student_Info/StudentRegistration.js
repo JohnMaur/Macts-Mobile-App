@@ -36,7 +36,7 @@ const StudentRegistration = ({ route, navigation }) => {
   // Function to check if the user is already registered
   const checkRegistrationStatus = async () => {
     try {
-      const response = await axios.get(`https://macts-backend-mobile-app.onrender.com/studentinfo/${user_id}`);
+      const response = await axios.get(`https://macts-backend-mobile-app-production.up.railway.app/studentinfo/${user_id}`);
       if (response.data.length > 0) {
         setIsRegistered(true);
       } else {
@@ -62,7 +62,7 @@ const StudentRegistration = ({ route, navigation }) => {
 
     try {
       // Check if TUPT-ID already exists
-      const checkTuptIdResponse = await axios.post(`https://macts-backend-mobile-app.onrender.com/check_tupt_id/${tuptId}`);
+      const checkTuptIdResponse = await axios.post(`https://macts-backend-mobile-app-production.up.railway.app/check_tupt_id/${tuptId}`);
       if (checkTuptIdResponse.data.exists) {
         setModalMessage('Your TUPT-ID is already used.');
         setShowModal(true);
@@ -84,7 +84,7 @@ const StudentRegistration = ({ route, navigation }) => {
       }
 
       // Insert student data and image URL into the database
-      const registrationResponse = await axios.post('https://macts-backend-mobile-app.onrender.com/student_registration', {
+      const registrationResponse = await axios.post('https://macts-backend-mobile-app-production.up.railway.app/student_registration', {
         firstName,
         middleName,
         lastName,

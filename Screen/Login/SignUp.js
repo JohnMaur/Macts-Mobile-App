@@ -40,7 +40,7 @@ const SignUp = () => {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('https://macts-backend-mobile-app.onrender.com/users');
+      const response = await axios.get('https://macts-backend-mobile-app-production.up.railway.app/users');
       return response.data;
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -72,7 +72,7 @@ const SignUp = () => {
       }
 
       // Proceed with signup if username is available
-      const response = await axios.post('https://macts-backend-mobile-app.onrender.com/signup', {
+      const response = await axios.post('https://macts-backend-mobile-app-production.up.railway.app/signup', {
         username,
         password,
       });

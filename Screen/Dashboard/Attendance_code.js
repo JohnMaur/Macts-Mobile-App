@@ -31,7 +31,7 @@ const Attendance_code = ({ route }) => {
     }
 
     try {
-      const response = await fetch('https://macts-backend-mobile-app.onrender.com/attendanceCode', {
+      const response = await fetch('https://macts-backend-mobile-app-production.up.railway.app/attendanceCode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
