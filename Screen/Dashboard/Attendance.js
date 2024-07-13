@@ -14,71 +14,51 @@ const responsiveSize = (fontSize) => {
 
 const Attendance = ({ route }) => {
   const { user_id } = route.params;
-  const { code } = route.params;
   const navigation = useNavigation();
 
   const [tagData, setTagData] = useState([]);
   const [studentInfo, setStudentInfo] = useState(null);
   const [currentTap, setCurrentTap] = useState(null);
   const [previousTap, setPreviousTap] = useState(null);
-  const [isCooldown, setIsCooldown] = useState(false);
   const [showExcessiveTappingModal, setShowExcessiveTappingModal] = useState(false);
-  const [setting, setSetting] = useState(null); 
+  const [excessiveTappingMessage, setExcessiveTappingMessage] = useState(''); // New state for backend message
+  const [setting, setSetting] = useState(null);
+  const [attendanceDescription, setAttendanceDescription] = useState(null); // New state for attendance description
+  const [showLeaveModal, setShowLeaveModal] = useState(false); // New state for leave confirmation modal
 
   useEffect(() => {
     const attendanceSocket = io('wss://macts-attendance-production.up.railway.app');
 
-    const handleTagData = (data, source) => {
-      console.log(`Received tag data from ${source}:`, data);
+    const handleTagData = (data) => {
+      console.log('Received tag data:', data);
       setTagData(prevTagData => [...prevTagData, data]);
 
-      // Check if cooldown is active
-      if (isCooldown && data === studentInfo.tagValue) {
-        console.log("Excessive tapping detected. Please wait for a minute before tapping again.");
+      if (data.excessiveTap) {
+        setExcessiveTappingMessage("You've already tapped your RFID card. Please wait for a minute before tapping again.");
         setShowExcessiveTappingModal(true);
-        return;
-      }
-
-      // Compare fetched student info with tagValue
-      if (data === studentInfo.tagValue) {
-        setIsCooldown(true); // Activate cooldown
-        setTimeout(() => {
-          setIsCooldown(false); // Deactivate cooldown after 1 minute
-        }, 60000); // 1 minute cooldown
-
-        // // Set previousTap before updating currentTap
-        setPreviousTap(prevTap => currentTap ? { ...currentTap, setting: setting } : null);
+      } else if (data.tagData === studentInfo?.tagValue) {
+        setPreviousTap(currentTap ? { ...currentTap, setting: setting } : null);
         setCurrentTap({ ...studentInfo, taggedAt: new Date().toLocaleString('en-US') });
-        setSetting(source); // Set the setting based on the source
+        setSetting('Attendance');
       } else {
         console.log("Tag value doesn't match the student information.");
       }
     };
 
-    attendanceSocket.on('tagData', data => handleTagData(data, 'Attendance'));
+    attendanceSocket.on('tagData', handleTagData);
 
     return () => {
       attendanceSocket.disconnect();
     };
-  }, [studentInfo, isCooldown, currentTap]);
+  }, [studentInfo, currentTap]);
 
   useEffect(() => {
     const excessiveTappingTimer = setTimeout(() => {
       setShowExcessiveTappingModal(false);
-    }, 60000); // 60 seconds
+    }, 5000); // Hide modal after 5 seconds
 
     return () => clearTimeout(excessiveTappingTimer);
   }, [showExcessiveTappingModal]);
-
-
-  useEffect(() => {
-    if (currentTap) {
-      if (setting === 'Attendance') {
-        attendanceTapHistory(currentTap);
-      }
-    }
-  }, [currentTap, setting]);
-
 
   const fetchStudentInfo = async () => {
     try {
@@ -90,32 +70,53 @@ const Attendance = ({ route }) => {
     }
   };
 
-  const attendanceTapHistory = async (data) => {
-    try {
-      await axios.post('https://macts-backend-mobile-app-production.up.railway.app/attendance_history', {
-        firstName: data.studentInfo_first_name,
-        middleName: data.studentInfo_middle_name,
-        lastName: data.studentInfo_last_name,
-        tuptId: data.studentInfo_tuptId,
-        course: data.studentInfo_course,
-        section: data.studentInfo_section,
-        email: data.user_email,
-        code: code,
-        date: data.taggedAt,
-        user_id: data.user_id,
-      });
-    } catch (error) {
-      console.error('Error inserting data into database:', error);
-    }
-  }
-
   useEffect(() => {
     fetchStudentInfo();
   }, []);
 
+  const fetchAttendanceDescription = async () => {
+    try {
+      const response = await axios.get(`https://macts-backend-mobile-app-production.up.railway.app/attendanceDetails/${user_id}`);
+      const fetchedStudentInfo = response.data;
+      setAttendanceDescription(fetchedStudentInfo.attendance_description); // Set the attendance description
+    } catch (error) {
+      console.error('Error fetching student information:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAttendanceDescription();
+  }, []);
+
+  const handleLeaveConfirm = async () => {
+    setShowLeaveModal(false);
+  
+    try {
+      await axios.post(`https://macts-backend-mobile-app-production.up.railway.app/update_attendance_code/${user_id}`, { code: '' });
+      navigation.navigate('Attendance code', { user_id: user_id });
+    } catch (error) {
+      console.error('Error clearing attendance code:', error);
+      // Handle error as needed
+    }
+  };
+
+  const handleLeavePress = () => {
+    setShowLeaveModal(true);
+  };
+
+  const handleLeaveCancel = () => {
+    setShowLeaveModal(false);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
+        <View style={styles.attendanceDescriptionContainer}>
+          <Text style={styles.attendanceStyleText}>You are in: </Text>
+          <Text style={[styles.attendanceStyleText, { fontWeight: "bold", width: "75%",}]}>{attendanceDescription}</Text>
+
+        </View>
+
         <Text style={styles.displayText}>Current Tap</Text>
         <View style={styles.tapContainer}>
           {currentTap ? (
@@ -226,9 +227,31 @@ const Attendance = ({ route }) => {
       </ScrollView>
       <TouchableOpacity
         style={styles.backButton}
-        onPress={() => navigation.navigate('Attendance code', { user_id: user_id })}>
-        <Text style={styles.backButtonText}>Back</Text>
+        onPress={handleLeavePress}>
+        <Text style={styles.backButtonText}>Leave</Text>
       </TouchableOpacity>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showLeaveModal}
+        onRequestClose={() => setShowLeaveModal(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>Click "Yes" to leave this attendance session</Text>
+            <View style={styles.modalButtonsContainer}>
+              <TouchableOpacity style={styles.modalButton} onPress={handleLeaveConfirm}>
+                <Text style={styles.modalButtonText}>Yes</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.modalButton, {backgroundColor: "#808080"}]} onPress={handleLeaveCancel}>
+                <Text style={styles.modalButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -262,12 +285,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#EEEEEE',
   },
+  attendanceDescriptionContainer: {
+    flexDirection: "row",
+    margin: responsiveSize(10),
+    marginHorizontal: responsiveSize(20),
+    marginBottom: responsiveSize(20),
+    
+  },
+  attendanceStyleText: {
+    fontSize: responsiveSize(22),
+  },
   displayText: {
     color: 'black',
     fontSize: responsiveSize(22),
     fontWeight: 'bold',
     marginLeft: responsiveSize(20),
-    marginTop: responsiveSize(30),
     marginBottom: responsiveSize(20),
     letterSpacing: responsiveSize(1),
   },
@@ -376,4 +408,42 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     fontSize: responsiveSize(16),
   },
+
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    padding: responsiveSize(20),
+    backgroundColor: 'white',
+    borderRadius: responsiveSize(10),
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: responsiveSize(18),
+    marginBottom: responsiveSize(20),
+    textAlign: 'center',
+  },
+  modalButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    marginHorizontal: responsiveSize(5),
+    padding: responsiveSize(10),
+    backgroundColor: '#3498db',
+    borderRadius: responsiveSize(5),
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: responsiveSize(16),
+  },
+  
 });
+

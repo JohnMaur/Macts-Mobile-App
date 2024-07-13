@@ -9,10 +9,10 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Alert,
+  Modal,
+  ActivityIndicator,
   TouchableWithoutFeedback,
   Dimensions,
-  Modal,
 } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
@@ -37,6 +37,8 @@ const SignUp = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [slowConnection, setSlowConnection] = useState(false);
 
   const fetchUserData = async () => {
     try {
@@ -61,6 +63,9 @@ const SignUp = () => {
       return;
     }
 
+    setLoading(true); // Set loading to true at the start of the request
+    const startTime = Date.now();
+
     try {
       // Check if the username already exists
       const userData = await fetchUserData();
@@ -68,6 +73,7 @@ const SignUp = () => {
       if (isUsernameTaken) {
         setModalMessage('Username is already in use');
         setShowModal(true);
+        setLoading(false); // Set loading to false if username is taken
         return;
       }
 
@@ -76,16 +82,25 @@ const SignUp = () => {
         username,
         password,
       });
+
       // Handle successful signup
       console.log('Signup successful:', response.data);
       setModalMessage('Signup successful');
       setShowModal(true);
       await fetchUserData(); // Fetch user data
+      setLoading(false); // Set loading to false after successful signup
       navigation.navigate('Login'); // Navigate to the login screen
     } catch (error) {
       console.error('Error signing up:', error);
-      setModalMessage('Failed to sign up');
+      setModalMessage('Failed to sign up. Please check your internet connection.');
       setShowModal(true);
+      setLoading(false); // Set loading to false on error
+    }
+
+    const duration = Date.now() - startTime;
+    if (duration > 5000) { // Set threshold to 5 seconds
+      setSlowConnection(true);
+      setTimeout(() => setSlowConnection(false), 3000); // Hide the message after 3 seconds
     }
   };
 
@@ -122,7 +137,6 @@ const SignUp = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
       >
-
         <View style={styles.content}>
           <Image
             source={require('../../img/Logo_blue.png')}
@@ -180,7 +194,6 @@ const SignUp = () => {
               </TouchableWithoutFeedback>
             </View>
 
-
             <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
               <Text style={styles.buttonText}>Sign Up</Text>
             </TouchableOpacity>
@@ -191,12 +204,31 @@ const SignUp = () => {
 
             <View style={styles.footerContainer}>
               <Text style={styles.footerText}>By using MACT’s, you are agreeing to our</Text>
-              <TouchableOpacity >
+              <TouchableOpacity>
                 <Text style={styles.termOfServiceLink}>Terms of Service</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
+
+        {loading && (
+          <Modal
+            transparent={true}
+            animationType="none"
+            visible={loading}
+            onRequestClose={() => {}}
+          >
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+          </Modal>
+        )}
+
+        {slowConnection && (
+          <View style={styles.slowConnectionMessage}>
+            <Text style={styles.slowConnectionText}>Slow connection detected. Please wait...</Text>
+          </View>
+        )}
       </KeyboardAvoidingView>
 
       <Modal
@@ -343,6 +375,23 @@ const styles = StyleSheet.create({
     borderRadius: responsiveSize(20),
     padding: responsiveSize(10),
     elevation: 2
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  slowConnectionMessage: {
+    position: 'absolute',
+    bottom: responsiveSize(50),
+    backgroundColor: 'rgba(255, 0, 0, 0.7)',
+    padding: responsiveSize(10),
+    borderRadius: 10,
+  },
+  slowConnectionText: {
+    color: 'white',
+    fontSize: responsiveSize(16),
   },
 });
 

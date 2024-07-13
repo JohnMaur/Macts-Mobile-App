@@ -31,7 +31,8 @@ const Attendance_code = ({ route }) => {
     }
 
     try {
-      const response = await fetch('https://macts-backend-mobile-app-production.up.railway.app/attendanceCode', {
+      // Validate the attendance code
+      const validationResponse = await fetch('https://macts-backend-mobile-app-production.up.railway.app/attendanceCode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,10 +40,28 @@ const Attendance_code = ({ route }) => {
         body: JSON.stringify({ code: code }),
       });
 
-      if (response.ok) {
+      if (!validationResponse.ok) {
+        setError('Invalid code, please try again');
+        // Clear the error message after 3 seconds
+        setTimeout(() => {
+          setError(null);
+        }, 5000);
+        return;
+      }
+
+      // If code is valid, update the attendance code in the database
+      const updateResponse = await fetch(`https://macts-backend-mobile-app-production.up.railway.app/update_attendance_code/${user_id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code: code }),
+      });
+
+      if (updateResponse.ok) {
         navigation.navigate('Attendance', { code: code, user_id: user_id });
       } else {
-        setError('Invalid code, please try again');
+        setError('Error updating attendance code, please try again');
         // Clear the error message after 3 seconds
         setTimeout(() => {
           setError(null);
@@ -91,7 +110,6 @@ const Attendance_code = ({ route }) => {
           </View>
         </View>
       </Modal>
-
     </View>
   );
 };

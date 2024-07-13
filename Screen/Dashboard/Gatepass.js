@@ -60,7 +60,7 @@ const Gatepass = ({ route }) => {
     return () => {
       GatepassSocket.disconnect();
     };
-  }, [studentDevice, isCooldown, currentTap, setting]);
+  }, [studentDevice, studentInfo, isCooldown, currentTap, setting]);
 
   useEffect(() => {
     const excessiveTappingTimer = setTimeout(() => setShowExcessiveTappingModal(false), 60000);

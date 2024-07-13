@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, Dimensions, ActivityIndicator } from 'react-native';
-import axios from 'axios';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import axios from 'axios';
 
 // Get the screen dimensions
 const screenWidth = Dimensions.get('window').width;
@@ -18,7 +18,8 @@ const StudentInfo = ({ route }) => {
   const navigation = useNavigation();
   const { user_id } = route.params;
   const [studentInfo, setStudentInfo] = useState(null);
-  const [loading, setLoading] = useState(true); // State to track loading state
+  const [loading, setLoading] = useState(true); // State to track loading 
+  const [error, setError] = useState(false); // State to track error
 
   const fetchStudentInfo = async () => {
     try {
@@ -26,6 +27,7 @@ const StudentInfo = ({ route }) => {
       setStudentInfo(response.data[0]); // Assuming only one student info is returned
     } catch (error) {
       console.error('Error fetching student information:', error);
+      setError(true);
     } finally {
       setLoading(false); // Set loading state to false after fetching data
     }
@@ -52,7 +54,17 @@ const StudentInfo = ({ route }) => {
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
           <>
-            {studentInfo ? (
+            {error ? (
+              <View style={styles.errorContainer}>
+                <Image
+                  source={require('../../img/neutral.png')}
+                  style={styles.neutralEmoji}
+                />
+                <Text style={styles.errorText}>Check your internet connection and try again</Text>
+                <Text style={styles.errortext}>We couldn't connect to the server.</Text>
+
+              </View>
+            ) : studentInfo ? (
               <>
                 <View style={styles.studentInfoBoxContainer}>
                   <TouchableOpacity style={styles.profileIconContainer}>
@@ -63,7 +75,6 @@ const StudentInfo = ({ route }) => {
                           style={styles.profileIcon}
                         />
                       </View>
-
                     ) : (
                       <View style={styles.profileCenterborder}>
                         <Image
@@ -71,29 +82,24 @@ const StudentInfo = ({ route }) => {
                           style={styles.profileIcon}
                         />
                       </View>
-
                     )}
                   </TouchableOpacity>
                   <View style={styles.studentInfoContainer}>
                     <Text style={styles.descriptionStudentInfo}>Name:</Text>
                     <Text style={styles.studentInfo}>{`${studentInfo.studentInfo_first_name} ${studentInfo.studentInfo_middle_name} ${studentInfo.studentInfo_last_name}`}</Text>
                   </View>
-
                   <View style={styles.studentInfoContainer}>
                     <Text style={styles.descriptionStudentInfo}>TUPT-ID:</Text>
                     <Text style={styles.studentInfo}>{studentInfo.studentInfo_tuptId}</Text>
                   </View>
-
                   <View style={styles.studentInfoContainer}>
                     <Text style={styles.descriptionStudentInfo}>Email:</Text>
                     <Text style={styles.studentInfo}>{studentInfo.user_email}</Text>
                   </View>
-
                   <View style={styles.studentInfoContainer}>
                     <Text style={styles.descriptionStudentInfo}>Course:</Text>
                     <Text style={styles.studentInfo}>{studentInfo.studentInfo_course}</Text>
                   </View>
-
                   <View style={styles.studentInfoContainer}>
                     <Text style={styles.descriptionStudentInfo}>Section:</Text>
                     <Text style={styles.studentInfo}>{studentInfo.studentInfo_section}</Text>
@@ -226,5 +232,25 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 1,
     fontSize: responsiveSize(16),
-  }
+  },
+  errorContainer: {
+    flex: 1,
+    padding: responsiveSize(30),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  neutralEmoji: {
+    width: responsiveSize(45),
+    height: responsiveSize(45),
+    marginBottom: responsiveSize(5),
+  },
+  errorText: {
+    fontSize: responsiveSize(25),
+    textAlign: 'center',
+  },
+  errortext: {
+    fontSize: responsiveSize(18),
+    marginTop: responsiveSize(5),
+    fontWeight: "bold"
+  },
 });

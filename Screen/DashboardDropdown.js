@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
 
 // Get the screen dimensions
@@ -13,6 +13,7 @@ const responsiveSize = (fontSize) => {
 
 const DashboardDropdown = ({ navigation, user_id, state }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [attendanceCode, setAttendanceCode] = useState(null);
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -22,6 +23,29 @@ const DashboardDropdown = ({ navigation, user_id, state }) => {
     setIsOpen(false); // Close the dropdown when navigating
     navigation.navigate(screen, { user_id });
   };
+
+  const checkAttendanceCode = async () => {
+    try {
+      const response = await fetch(`https://macts-backend-mobile-app-production.up.railway.app/attendanceCode/${user_id}`);
+      const data = await response.json();
+      setAttendanceCode(data.attendance_code);
+    } catch (error) {
+      console.error('Error fetching attendance code:', error);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch initial attendance code
+    checkAttendanceCode();
+
+    // Setup interval to fetch attendance code every 30 seconds (adjust interval as needed)
+    const interval = setInterval(() => {
+      checkAttendanceCode();
+    }, 5000); // 30 seconds
+
+    // Clean up interval on component unmount
+    return () => clearInterval(interval);
+  }, []);
 
   // Check if any of the items in the dropdown menu matches the active route
   const isActiveRoute = (routeName) => {
@@ -34,14 +58,16 @@ const DashboardDropdown = ({ navigation, user_id, state }) => {
     isActiveRoute('Library') ||
     isActiveRoute('Registrar') ||
     isActiveRoute('Gatepass') ||
-    isActiveRoute('Gym');
+    isActiveRoute('Gym') ||
+    isActiveRoute('Attendance');
 
   const isAnyDropdownItemActive =
     isActiveRoute('Attendance code') ||
     isActiveRoute('Library') ||
     isActiveRoute('Registrar') ||
     isActiveRoute('Gatepass') ||
-    isActiveRoute('Gym');
+    isActiveRoute('Gym') ||
+    isActiveRoute('Attendance');
 
   const shouldCloseDropdown = isOpen && isAnyDropdownItemActive;
 
@@ -66,16 +92,15 @@ const DashboardDropdown = ({ navigation, user_id, state }) => {
             style={styles.drawerIcon}
           />
         </View>
-
       </TouchableOpacity>
       {isDropdownActive && (
         <View style={styles.dropdownContent}>
           <TouchableOpacity
             style={{
               ...styles.dropdownItem,
-              backgroundColor: isActiveRoute('Attendance code') ? '#2196F3' : '#1E1E1E',
+              backgroundColor: isActiveRoute('Attendance code') || isActiveRoute('Attendance') ? '#2196F3' : '#1E1E1E',
             }}
-            onPress={() => handleNavigation('Attendance code')}
+            onPress={() => handleNavigation(attendanceCode ? 'Attendance' : 'Attendance code')}
           >
             <Text style={styles.dropdownItemText}>Attendance</Text>
           </TouchableOpacity>
@@ -125,7 +150,6 @@ const DashboardDropdown = ({ navigation, user_id, state }) => {
   );
 };
 
-
 const styles = StyleSheet.create({
   dropdownToggle: {
     backgroundColor: '#1B1A1E',
@@ -155,7 +179,6 @@ const styles = StyleSheet.create({
   navContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-
   },
   drawerIcon: {
     width: responsiveSize(20),
