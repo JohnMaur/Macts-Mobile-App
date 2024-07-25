@@ -18,67 +18,47 @@ const Library = ({ route }) => {
   const [studentInfo, setStudentInfo] = useState(null);
   const [currentTap, setCurrentTap] = useState(null);
   const [previousTap, setPreviousTap] = useState(null);
-  const [isCooldown, setIsCooldown] = useState(false);
   const [showExcessiveTappingModal, setShowExcessiveTappingModal] = useState(false);
-  const [setting, setSetting] = useState(null); // Added state for setting
-  const [tapStatus, setTapStatus] = useState(null); // New state for tap status
+  const [setting, setSetting] = useState(null);
+  const [tapStatus, setTapStatus] = useState(null);
 
   useEffect(() => {
+    // const librarySocket = io('ws://192.168.100.138:2929');
     const librarySocket = io('wss://macts-backend-library-production.up.railway.app');
 
-    const handleTagData = (data, source) => {
-      console.log(`Received tag data from ${source}:`, data);
-      setTagData(prevTagData => [...prevTagData, data]);
+    const handleTagData = (data) => {
+      console.log(`Received tag data from Library:`, data);
+      setTagData(prevTagData => [...prevTagData, data.tagData]);
 
-      // Check if cooldown is active
-      if (isCooldown && data === studentInfo.tagValue) {
-        console.log("Excessive tapping detected. Please wait for a minute before tapping again.");
+      if (data.tagData === studentInfo?.tagValue && data.excessiveTap) {
         setShowExcessiveTappingModal(true);
-        return;
-      }
-
-      // Compare fetched student info with tagValue
-      if (data === studentInfo.tagValue) {
-        setIsCooldown(true); // Activate cooldown
-        setTimeout(() => {
-          setIsCooldown(false); // Deactivate cooldown after 1 minute
-        }, 60000); // 1 minute cooldown
-
-        // // Set previousTap before updating currentTap
-        setPreviousTap(currentTap ? { ...currentTap, setting: setting + (tapStatus ? ` - ${tapStatus}` : '') } : null);
-        setCurrentTap({ ...studentInfo, taggedAt: new Date().toLocaleString('en-US') });
-
-
-        setSetting(source); // Set the setting based on the source
       } else {
-        console.log("Tag value doesn't match the student information.");
+
+        if (data.tagData === studentInfo?.tagValue) {
+          setTapStatus(data.tapStatus);
+          setSetting('Library');
+          setPreviousTap(currentTap ? { ...currentTap, setting: setting + (tapStatus ? ` - ${tapStatus}` : '') } : null);
+          setCurrentTap({ ...studentInfo, taggedAt: new Date().toLocaleString('en-US') });
+        } else {
+          console.log("Tag value doesn't match the student information. Received:", data.tagData, "Expected:", studentInfo?.tagValue);
+        }
       }
     };
 
-    librarySocket.on('tagData', data => handleTagData(data, 'Library'));
+    librarySocket.on('tagData', data => handleTagData(data));
 
     return () => {
       librarySocket.disconnect();
     };
-  }, [studentInfo, isCooldown, currentTap]);
-
-  useEffect(() => {
-    const excessiveTappingTimer = setTimeout(() => {
-      setShowExcessiveTappingModal(false);
-    }, 60000); // 60 seconds
-
-    return () => clearTimeout(excessiveTappingTimer);
-  }, [showExcessiveTappingModal]);
-
+  }, [studentInfo, currentTap]);
 
   useEffect(() => {
     if (currentTap) {
       if (setting === 'Library') {
-        libraryTapHistory(currentTap);
+        // Call libraryTapHistory function or handle currentTap data as needed
       }
     }
   }, [currentTap, setting]);
-
 
   const fetchStudentInfo = async () => {
     try {
@@ -87,25 +67,6 @@ const Library = ({ route }) => {
       setStudentInfo(fetchedStudentInfo);
     } catch (error) {
       console.error('Error fetching student information:', error);
-    }
-  };
-
-  const libraryTapHistory = async (data) => {
-    try {
-      const response = await axios.post('https://macts-backend-mobile-app-production.up.railway.app/library_history', {
-        firstName: data.studentInfo_first_name,
-        middleName: data.studentInfo_middle_name,
-        lastName: data.studentInfo_last_name,
-        tuptId: data.studentInfo_tuptId,
-        course: data.studentInfo_course,
-        section: data.studentInfo_section,
-        email: data.user_email,
-        user_id: data.user_id,
-      });
-      const { tapStatus } = response.data;
-      setTapStatus(tapStatus); // Set tap status when available
-    } catch (error) {
-      console.error('Error inserting data into database:', error);
     }
   };
 

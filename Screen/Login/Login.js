@@ -84,17 +84,32 @@ const Login = () => {
   };
 
   const handleLogin = async () => {
-    const user = userData.find(user => user.user_name === username && user.user_password === password);
-    if (user) {
-      try {
-        await AsyncStorage.setItem('userToken', 'someRandomToken');
-        await AsyncStorage.setItem('user', JSON.stringify(user));
-        navigation.replace('AppDrawer', { username: user.user_name, user_id: user.user_id, tagValue: user.tagValue });
-      } catch (error) {
-        console.error('Error saving data:', error);
+    if (!username || !password) {
+      setShowModal(true);
+      return;
+    }
+  
+    try {
+      const response = await axios.get('https://macts-backend-mobile-app-production.up.railway.app/users');
+      const user = response.data.find(user => user.user_name === username && user.user_password === password);
+  
+      if (user) {
+        try {
+          await AsyncStorage.setItem('userToken', 'someRandomToken');
+          await AsyncStorage.setItem('user', JSON.stringify(user));
+          navigation.replace('AppDrawer', { username: user.user_name, user_id: user.user_id, tagValue: user.tagValue });
+        } catch (error) {
+          console.error('Error saving data:', error);
+        }
+      } else {
+        setShowModal(true); // Show modal if login fails
       }
-    } else {
-      setShowModal(true); // Show modal if login fails
+    } catch (error) {
+      if (error.message === 'Network Error') {
+        setSlowConnection(true); // Show modal if there is a network error
+      } else {
+        console.error('Error fetching user data:', error);
+      }
     }
   };
 
@@ -244,7 +259,7 @@ const Login = () => {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>Slow connection...</Text>
+            <Text style={styles.modalText}>Check your internet connection and try again</Text>
             <TouchableOpacity
               style={styles.openButton}
               onPress={closeSlowConnectionModal}

@@ -22,50 +22,45 @@ const Gatepass = ({ route }) => {
   const [previousTap, setPreviousTap] = useState(null);
   const [isCooldown, setIsCooldown] = useState(false);
   const [showExcessiveTappingModal, setShowExcessiveTappingModal] = useState(false);
-  const [setting, setSetting] = useState(null);
 
   useEffect(() => {
     const GatepassSocket = io('wss://macts-backend-gatepass-production.up.railway.app');
 
-    const handleTagData = (data, source) => {
-      console.log(`Received tag data from ${source}:`, data);
-    
-      if (isCooldown && data === studentDevice.deviceRegistration) {
-        console.log("Excessive tapping detected. Please wait for a minute before tapping again.");
+    const handleTagData = (data) => {
+      if (data.excessiveTap) {
         setShowExcessiveTappingModal(true);
         return;
       }
-    
-      if (studentDevice && data === studentDevice.deviceRegistration) {
-        setIsCooldown(true);
-        setTimeout(() => setIsCooldown(false), 60000);
-    
+
+      if (!studentDevice || !studentDevice.deviceRegistration) {
+        console.log("Student device information is not available.");
+        return;
+      }
+
+      console.log("Received tag data:", data);
+      console.log("Expected tag data:", studentDevice.deviceRegistration);
+
+      const trimmedData = data.tagData.trim();
+      const expectedData = studentDevice.deviceRegistration.trim();
+
+      if (trimmedData === expectedData) {
         if (currentTap) {
           setPreviousTap(currentTap); // Update previousTap before updating currentTap
         }
-        
+
         const newTap = { ...studentInfo, device_brand: studentDevice.device_brand, device_serialNumber: studentDevice.device_serialNumber, taggedAt: new Date().toLocaleString('en-US') };
         setCurrentTap(newTap);
-        setSetting(source);
-    
-        GatepassTapHistory(newTap);
       } else {
         console.log("Tag value doesn't match the student device information.");
       }
     };
-    
 
-    GatepassSocket.on('tagData', data => handleTagData(data, 'Gatepass'));
+    GatepassSocket.on('tagData', handleTagData);
 
     return () => {
       GatepassSocket.disconnect();
     };
-  }, [studentDevice, studentInfo, isCooldown, currentTap, setting]);
-
-  useEffect(() => {
-    const excessiveTappingTimer = setTimeout(() => setShowExcessiveTappingModal(false), 60000);
-    return () => clearTimeout(excessiveTappingTimer);
-  }, [showExcessiveTappingModal]);
+  }, [studentDevice, studentInfo, currentTap]);
 
   const fetchStudentInfo = async () => {
     try {
@@ -82,25 +77,6 @@ const Gatepass = ({ route }) => {
       setStudentDevice(response.data[0]);
     } catch (error) {
       console.error('Error fetching device information:', error);
-    }
-  };
-
-  const GatepassTapHistory = async (data) => {
-    try {
-      await axios.post('https://macts-backend-mobile-app-production.up.railway.app/Gatepass_history', {
-        firstName: data.studentInfo_first_name,
-        middleName: data.studentInfo_middle_name,
-        lastName: data.studentInfo_last_name,
-        tuptId: data.studentInfo_tuptId,
-        course: data.studentInfo_course,
-        section: data.studentInfo_section,
-        deviceName: data.device_brand,
-        serialNumber: data.device_serialNumber,
-        date: data.taggedAt,
-        user_id: user_id,
-      });
-    } catch (error) {
-      console.error('Error inserting data into database:', error);
     }
   };
 

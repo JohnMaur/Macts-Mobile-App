@@ -21,10 +21,10 @@ const Attendance = ({ route }) => {
   const [currentTap, setCurrentTap] = useState(null);
   const [previousTap, setPreviousTap] = useState(null);
   const [showExcessiveTappingModal, setShowExcessiveTappingModal] = useState(false);
-  const [excessiveTappingMessage, setExcessiveTappingMessage] = useState(''); // New state for backend message
+  const [excessiveTappingMessage, setExcessiveTappingMessage] = useState(''); 
   const [setting, setSetting] = useState(null);
-  const [attendanceDescription, setAttendanceDescription] = useState(null); // New state for attendance description
-  const [showLeaveModal, setShowLeaveModal] = useState(false); // New state for leave confirmation modal
+  const [attendanceDescription, setAttendanceDescription] = useState(null); 
+  const [showLeaveModal, setShowLeaveModal] = useState(false); 
 
   useEffect(() => {
     const attendanceSocket = io('wss://macts-attendance-production.up.railway.app');
@@ -33,7 +33,7 @@ const Attendance = ({ route }) => {
       console.log('Received tag data:', data);
       setTagData(prevTagData => [...prevTagData, data]);
 
-      if (data.excessiveTap) {
+      if (data.excessiveTap && data.tagData === studentInfo?.tagValue) {
         setExcessiveTappingMessage("You've already tapped your RFID card. Please wait for a minute before tapping again.");
         setShowExcessiveTappingModal(true);
       } else if (data.tagData === studentInfo?.tagValue) {
